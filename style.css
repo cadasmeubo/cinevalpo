@@ -1,24 +1,59 @@
-body {
+html, body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #f2f2f2;
-}
-
-h1 {
-  margin: 20px 0 10px;
-  font-size: 24px;
-  color: #333;
-  text-align: center;
+  height: 100%;
+  font-family: sans-serif;
 }
 
 #map {
-  width: 90vw;
-  height: 80vh;
-  border: 2px solid #555;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 250px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar:hover {
+  transform: translateX(0);
+}
+
+.sidebar h2 {
+  font-size: 18px;
+  margin-top: 0;
+}
+
+.filter-group {
   margin-bottom: 20px;
+}
+
+label {
+  font-size: 14px;
+}
+
+select,
+input[type="range"] {
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.range-label {
+  font-size: 13px;
+  text-align: center;
+}
+
+.leaflet-popup-content img {
+  max-width: 100%;
+  height: auto;
 }
