@@ -1,59 +1,327 @@
+/* Estilos Generales y Reseteo Básico */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 html, body {
-  margin: 0;
-  height: 100%;
-  font-family: sans-serif;
+    height: 100%;
+    width: 100%;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Previene el scroll del cuerpo principal */
 }
 
+/* Estilo del Mapa */
 #map {
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1; /* Asegura que el mapa esté debajo de la cabecera y el menú */
 }
 
+/* Cabecera Principal */
+.main-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px; /* Altura de la cabecera */
+    background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco semi-transparente */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000; /* Asegura que esté por encima de todo */
+}
+
+.logo-container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.project-logo {
+    height: 50px; /* Ajusta el tamaño del logo */
+    width: auto;
+}
+
+/* Botón de Menú Hamburguesa */
+.menu-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    position: absolute;
+    left: 10px; /* Ajusta la posición para que esté a la izquierda del logo */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1001; /* Por encima de la cabecera si es necesario */
+}
+
+.hamburger-icon {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #333;
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+.hamburger-icon::before,
+.hamburger-icon::after {
+    content: '';
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #333;
+    position: absolute;
+    transition: transform 0.3s ease;
+}
+
+.hamburger-icon::before {
+    top: -8px;
+}
+
+.hamburger-icon::after {
+    top: 8px;
+}
+
+/* Animación del icono de hamburguesa a cruz */
+.menu-toggle.active .hamburger-icon {
+    background-color: transparent;
+}
+
+.menu-toggle.active .hamburger-icon::before {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.menu-toggle.active .hamburger-icon::after {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Menú Lateral (Sidebar) */
 .sidebar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 250px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 15px;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: -300px; /* Oculto por defecto */
+    width: 300px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+    z-index: 999; /* Por debajo de la cabecera */
+    transition: left 0.3s ease-out;
+    padding-top: 70px; /* Espacio para la cabecera */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Para empujar el footer hacia abajo */
 }
 
-.sidebar:hover {
-  transform: translateX(0);
+.sidebar.active {
+    left: 0; /* Visible */
 }
 
-.sidebar h2 {
-  font-size: 18px;
-  margin-top: 0;
+.sidebar nav {
+    padding: 20px;
+}
+
+.sidebar h3 {
+    margin-bottom: 20px;
+    color: #333;
 }
 
 .filter-group {
-  margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
-label {
-  font-size: 14px;
+.filter-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
 }
 
-select,
-input[type="range"] {
-  width: 100%;
-  margin-top: 5px;
-  margin-bottom: 10px;
+.filter-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
 }
 
-.range-label {
-  font-size: 13px;
-  text-align: center;
+.apply-filters-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff; /* Color azul */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-top: 20px;
+    transition: background-color 0.2s ease;
 }
 
-.leaflet-popup-content img {
-  max-width: 100%;
-  height: auto;
+.apply-filters-button:hover {
+    background-color: #0056b3;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.sidebar-footer .sidebar-logo {
+    height: 40px; /* Tamaño del logo pequeño */
+    margin-bottom: 10px;
+}
+
+.sidebar-footer a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.sidebar-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Overlay para el efecto blur */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0); /* Inicialmente transparente */
+    backdrop-filter: blur(0px); /* Inicialmente sin blur */
+    pointer-events: none; /* No interfiere con clics cuando está oculto */
+    transition: background-color 0.3s ease-out, backdrop-filter 0.3s ease-out;
+    z-index: 998; /* Debajo del sidebar pero encima del mapa */
+}
+
+.overlay.active {
+    background-color: rgba(0, 0, 0, 0.5); /* Oscurece el fondo */
+    backdrop-filter: blur(5px); /* Aplica el blur */
+    pointer-events: auto; /* Permite clics para cerrar el menú */
+}
+
+/* Estilos de Popups de Leaflet */
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+}
+
+.leaflet-popup-content {
+    padding: 10px !important;
+    text-align: center;
+}
+
+.popup-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 150px; /* Altura máxima para la imagen del popup */
+    display: block;
+    margin: 0 auto 10px auto;
+    border-radius: 4px;
+}
+
+.popup-content h4 {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.popup-content p {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+/* Estilos de la Ventana Modal */
+.modal {
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Permanece en su lugar incluso al desplazarse */
+    z-index: 2000; /* Supera todo lo demás */
+    left: 0;
+    top: 0;
+    width: 100%; /* Ancho completo */
+    height: 100%; /* Altura completa */
+    overflow: auto; /* Habilita el desplazamiento si es necesario */
+    background-color: rgba(0,0,0,0.6); /* Fondo semi-transparente negro */
+    backdrop-filter: blur(3px); /* Añade un ligero blur al fondo */
+    display: flex; /* Para centrar el contenido */
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto; /* Mantenido para compatibilidad, flexbox lo centra */
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%; /* Ancho del contenido */
+    max-width: 500px; /* Ancho máximo */
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    animation-name: animatemodal;
+    animation-duration: 0.4s;
+}
+
+/* Animación para que la modal aparezca */
+@keyframes animatemodal {
+    from {top: -300px; opacity: 0}
+    to {top: 0; opacity: 1}
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Media Queries para Responsividad */
+@media (max-width: 768px) {
+    .main-header {
+        padding: 0 10px;
+    }
+
+    .project-logo {
+        height: 40px;
+    }
+
+    .menu-toggle {
+        left: 5px;
+    }
+
+    .sidebar {
+        width: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 100%; /* Ocupa todo el ancho en móviles muy pequeños */
+        left: -100%;
+    }
+    .sidebar.active {
+        left: 0;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
 }
