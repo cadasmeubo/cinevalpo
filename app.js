@@ -1,133 +1,213 @@
-const map = L.map("map").setView([-33.0458, -71.6197], 13);
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Inicialización del Mapa
+    const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution:
-    '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-}).addTo(map);
+    let locacionesLayerGroup = L.featureGroup().addTo(map); // Para los puntos de locaciones
+    let sectoresLayerGroup = L.featureGroup().addTo(map);   // Para los polígonos de sectores
+    let allLocacionesData = []; // Para almacenar todos los datos de locaciones
+    let allSectoresData = null; // Para almacenar los datos de sectores una vez cargados
 
-const geojsonData = {
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "titulo": "Escena 1",
-        "descripcion": "Descripción breve.",
-        "link": "https://ejemplo.com",
-        "imagen": "https://i.imgur.com/jTQ58ZD.jpg",
-        "pelicula": "Película A",
-        "cerro": "Cerro Alegre",
-        "anio": 2001
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-71.622, -33.045]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "titulo": "Escena 2",
-        "descripcion": "Otra descripción.",
-        "link": "https://ejemplo2.com",
-        "imagen": "https://i.imgur.com/nqxFGPz.jpg",
-        "pelicula": "Película B",
-        "cerro": "Cerro Concepción",
-        "anio": 2015
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-71.615, -33.046]
-      }
+    // 2. Elementos del DOM
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.overlay');
+    const fechaFilter = document.getElementById('fecha-filter');
+    const peliculaFilter = document.getElementById('pelicula-filter');
+    const sectorFilter = document.getElementById('sector-filter');
+    const aplicarFiltrosBtn = document.getElementById('aplicar-filtros');
+    const acercaDeLink = document.getElementById('acerca-de-link');
+    const aboutModal = document.getElementById('about-modal');
+    const closeModalBtn = document.querySelector('.close-button');
+
+    // 3. Manejo del Menú Hamburguesa
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        menuToggle.classList.toggle('active'); // Para animar el icono
+    });
+
+    // Cerrar menú al hacer clic en el overlay
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        menuToggle.classList.remove('active');
+    });
+
+    // 4. Carga de Datos GeoJSON
+    async function loadGeoJSONData() {
+        try {
+            // Cargar locaciones_valparaiso.geojson (puntos)
+            const locacionesResponse = await fetch('data/locaciones_valparaiso.geojson');
+            allLocacionesData = await locacionesResponse.json();
+
+            // Cargar sectores_valparaiso.geojson (polígonos)
+            const sectoresResponse = await fetch('data/sectores_valparaiso.geojson');
+            allSectoresData = await sectoresResponse.json();
+
+            // Rellenar filtros y dibujar el mapa inicialmente
+            populateFilters(allLocacionesData.features, allSectoresData.features);
+            drawMap(allLocacionesData.features, allSectoresData.features);
+
+        } catch (error) {
+            console.error('Error al cargar los datos GeoJSON:', error);
+            alert('No se pudieron cargar los datos del mapa. Inténtalo de nuevo más tarde.');
+        }
     }
-  ]
-};
 
-let markers = [];
+    // 5. Rellenar Filtros
+    function populateFilters(locacionesFeatures, sectoresFeatures) {
+        // Rellenar filtro de Películas
+        const peliculas = [...new Set(locacionesFeatures.map(f => f.properties.Nombre_peli))].sort();
+        peliculas.forEach(pelicula => {
+            const option = document.createElement('option');
+            option.value = pelicula;
+            option.textContent = pelicula;
+            peliculaFilter.appendChild(option);
+        });
 
-function addMarkers(data) {
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+        // Rellenar filtro de Sectores
+        const sectores = [...new Set(sectoresFeatures.map(f => f.properties.Nombre_Sector || f.properties.name))].sort(); // Asume 'Nombre_Sector' o 'name'
+        sectores.forEach(sector => {
+            const option = document.createElement('option');
+            option.value = sector;
+            option.textContent = sector;
+            sectorFilter.appendChild(option);
+        });
+    }
 
-  data.features.forEach(feature => {
-    const p = feature.properties;
-    const coords = feature.geometry.coordinates.reverse();
-    const popupContent = `
-      <h3>${p.titulo}</h3>
-      <img src="${p.imagen}" alt="${p.titulo}" />
-      <p>${p.descripcion}</p>
-      <a href="${p.link}" target="_blank">Ver más</a>
-    `;
+    // 6. Dibujar Capas en el Mapa
+    function drawMap(locacionesFeatures, sectoresFeatures) {
+        // Limpiar capas existentes
+        locacionesLayerGroup.clearLayers();
+        sectoresLayerGroup.clearLayers();
 
-    const marker = L.marker(coords).addTo(map);
-    marker.bindPopup(popupContent);
-    markers.push(marker);
-  });
-}
+        // Dibujar polígonos de sectores
+        L.geoJson(sectoresFeatures, {
+            style: function (feature) {
+                return {
+                    color: '#ff7800',
+                    weight: 2,
+                    opacity: 0.6,
+                    fillOpacity: 0.1,
+                    fillColor: '#ff7800'
+                };
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && (feature.properties.Nombre_Sector || feature.properties.name)) {
+                    layer.bindPopup(`<h4>Sector: ${feature.properties.Nombre_Sector || feature.properties.name}</h4>`);
+                }
+            }
+        }).addTo(sectoresLayerGroup);
 
-function populateFilters(data) {
-  const peliculas = new Set();
-  const cerros = new Set();
 
-  data.features.forEach(f => {
-    peliculas.add(f.properties.pelicula);
-    cerros.add(f.properties.cerro);
-  });
+        // Dibujar puntos de locaciones
+        L.geoJson(locacionesFeatures, {
+            pointToLayer: function (feature, latlng) {
+                // Puedes usar un icono personalizado si tienes uno
+                // const customIcon = L.icon({
+                //     iconUrl: 'images/movie-icon.png',
+                //     iconSize: [32, 32],
+                //     iconAnchor: [16, 32]
+                // });
+                // return L.marker(latlng, { icon: customIcon });
+                return L.marker(latlng);
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties) {
+                    const props = feature.properties;
+                    const imageUrl = props.Imagen_asociada ? `images/${props.Imagen_asociada}` : 'images/no-image.jpg'; // Ruta por defecto si no hay imagen
+                    const popupContent = `
+                        <div class="popup-content">
+                            <img src="${imageUrl}" alt="Imagen de la escena" class="popup-image">
+                            <h4>${props.Nombre_peli || 'N/A'} (${props.Año_produccion || 'N/A'})</h4>
+                            <p><strong>Director:</strong> ${props.Director || 'N/A'}</p>
+                            <p><strong>Género:</strong> ${props.Género || 'N/A'}</p>
+                            <p><strong>Año de Ambientación:</strong> ${props.Año_ambientacion || 'N/A'}</p>
+                            <p><strong>Sector:</strong> ${props.Sector || 'N/A'}</p>
+                            <p><strong>Nota Breve:</strong> ${props.Nota_breve || 'N/A'}</p>
+                        </div>
+                    `;
+                    layer.bindPopup(popupContent);
+                }
+            }
+        }).addTo(locacionesLayerGroup);
+    }
 
-  const peliSelect = document.getElementById("peliculaFilter");
-  const cerroSelect = document.getElementById("cerroFilter");
+    // 7. Lógica de Aplicación de Filtros
+    aplicarFiltrosBtn.addEventListener('click', () => {
+        const selectedFecha = fechaFilter.value;
+        const selectedPelicula = peliculaFilter.value;
+        const selectedSector = sectorFilter.value;
 
-  peliculas.forEach(p => {
-    const opt = document.createElement("option");
-    opt.value = p;
-    opt.textContent = p;
-    peliSelect.appendChild(opt);
-  });
+        const filteredFeatures = allLocacionesData.features.filter(feature => {
+            const props = feature.properties;
+            const añoProduccion = parseInt(props.Año_produccion);
+            const nombrePelicula = props.Nombre_peli;
+            const sectorPunto = props.Sector; // Asume que el punto tiene un campo 'Sector'
 
-  cerros.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = c;
-    cerroSelect.appendChild(opt);
-  });
-}
+            // Filtrar por Año de Producción
+            let passesFechaFilter = true;
+            if (selectedFecha !== 'todos') {
+                switch (selectedFecha) {
+                    case 'antes1950':
+                        passesFechaFilter = añoProduccion < 1950;
+                        break;
+                    case '1951-1973':
+                        passesFechaFilter = añoProduccion >= 1951 && añoProduccion <= 1973;
+                        break;
+                    case '1974-1990':
+                        passesFechaFilter = añoProduccion >= 1974 && añoProduccion <= 1990;
+                        break;
+                    case '1990-actualidad':
+                        passesFechaFilter = añoProduccion >= 1990;
+                        break;
+                }
+            }
 
-function applyFilters() {
-  const yearStart = parseInt(document.getElementById("yearStart").value);
-  const yearEnd = parseInt(document.getElementById("yearEnd").value);
-  const peli = document.getElementById("peliculaFilter").value;
-  const cerro = document.getElementById("cerroFilter").value;
+            // Filtrar por Película
+            let passesPeliculaFilter = true;
+            if (selectedPelicula !== 'todas') {
+                passesPeliculaFilter = nombrePelicula === selectedPelicula;
+            }
 
-  const filtered = {
-    type: "FeatureCollection",
-    features: geojsonData.features.filter(f => {
-      const p = f.properties;
-      return (
-        (!peli || p.pelicula === peli) &&
-        (!cerro || p.cerro === cerro) &&
-        p.anio >= yearStart &&
-        p.anio <= yearEnd
-      );
-    })
-  };
+            // Filtrar por Sector (asume que el campo 'Sector' en el GeoJSON del punto coincide con el 'Nombre_Sector' o 'name' del GeoJSON de polígonos)
+            let passesSectorFilter = true;
+            if (selectedSector !== 'todos') {
+                passesSectorFilter = sectorPunto === selectedSector;
+            }
 
-  addMarkers(filtered);
-}
+            return passesFechaFilter && passesPeliculaFilter && passesSectorFilter;
+        });
 
-// Eventos
-document.getElementById("yearStart").addEventListener("input", e => {
-  document.getElementById("yearStartVal").textContent = e.target.value;
-  applyFilters();
+        // Volver a dibujar el mapa con los puntos filtrados
+        drawMap(filteredFeatures, allSectoresData.features);
+        // Opcional: Cerrar el menú lateral después de aplicar filtros
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        menuToggle.classList.remove('active');
+    });
+
+    // 8. Manejo de la Ventana Modal "Acerca de"
+    acercaDeLink.addEventListener('click', (e) => {
+        e.preventDefault(); // Evita que el enlace recargue la página
+        aboutModal.style.display = 'flex'; // Usamos flex para centrar
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        aboutModal.style.display = 'none';
+    });
+
+    // Cerrar modal al hacer clic fuera del contenido
+    window.addEventListener('click', (event) => {
+        if (event.target === aboutModal) {
+            aboutModal.style.display = 'none';
+        }
+    });
+
+    // Iniciar la carga de datos cuando el DOM esté listo
+    loadGeoJSONData();
 });
-
-document.getElementById("yearEnd").addEventListener("input", e => {
-  document.getElementById("yearEndVal").textContent = e.target.value;
-  applyFilters();
-});
-
-document.getElementById("peliculaFilter").addEventListener("change", applyFilters);
-document.getElementById("cerroFilter").addEventListener("change", applyFilters);
-
-// Init
-populateFilters(geojsonData);
-addMarkers(geojsonData);
