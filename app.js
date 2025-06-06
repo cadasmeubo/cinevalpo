@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Inicialización del Mapa Leaflet
+    // Esta línea funcionará una vez que leaflet.js se cargue correctamente
     const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -26,18 +27,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.querySelector('.close-button');
 
     // 3. Manejo del Menú Hamburguesa y Overlay
-    menuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        menuToggle.classList.toggle('active'); // Para animar el icono de hamburguesa
-    });
+    if (menuToggle && sidebar && overlay) { // Asegura que los elementos existen antes de añadir listeners
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            menuToggle.classList.toggle('active'); // Para animar el icono de hamburguesa
+        });
 
-    // Cerrar menú al hacer clic en el overlay (fuera del sidebar)
-    overlay.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-        menuToggle.classList.remove('active');
-    });
+        // Cerrar menú al hacer clic en el overlay (fuera del sidebar)
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            menuToggle.classList.remove('active');
+        });
+    } else {
+        console.warn("Algunos elementos del menú (menuToggle, sidebar, overlay) no fueron encontrados.");
+    }
+
 
     // 4. Carga de Datos GeoJSON
     async function loadGeoJSONData() {
@@ -58,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error al cargar los datos GeoJSON:', error);
-            alert(`No se pudieron cargar los datos del mapa: ${error.message}. Asegúrate de que los archivos GeoJSON estén en la carpeta 'data/'.`);
+            alert(`No se pudieron cargar los datos del mapa: ${error.message}. Asegúrate de que los archivos GeoJSON estén en la carpeta 'data/' y que los nombres de los archivos sean correctos.`);
         }
     }
 
@@ -146,81 +152,85 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 7. Lógica de Aplicación de Filtros
-    aplicarFiltrosBtn.addEventListener('click', () => {
-        const selectedFecha = fechaFilter.value;
-        const selectedPelicula = peliculaFilter.value;
-        const selectedSector = sectorFilter.value;
+    if (aplicarFiltrosBtn) { // Asegura que el botón existe
+        aplicarFiltrosBtn.addEventListener('click', () => {
+            const selectedFecha = fechaFilter.value;
+            const selectedPelicula = peliculaFilter.value;
+            const selectedSector = sectorFilter.value;
 
-        const filteredFeatures = allLocacionesData.features.filter(feature => {
-            const props = feature.properties;
-            const añoProduccion = parseInt(props.Año_produccion);
-            const nombrePelicula = props.Nombre_peli;
-            const sectorPunto = props.Sector; // Asume que el punto tiene un campo 'Sector'
+            const filteredFeatures = allLocacionesData.features.filter(feature => {
+                const props = feature.properties;
+                const añoProduccion = parseInt(props.Año_produccion);
+                const nombrePelicula = props.Nombre_peli;
+                const sectorPunto = props.Sector; // Asume que el punto tiene un campo 'Sector'
 
-            // Filtrar por Año de Producción (rangos)
-            let passesFechaFilter = true;
-            if (selectedFecha !== 'todos') {
-                switch (selectedFecha) {
-                    case 'antes1950':
-                        passesFechaFilter = añoProduccion < 1950;
-                        break;
-                    case '1951-1973':
-                        passesFechaFilter = añoProduccion >= 1951 && añoProduccion <= 1973;
-                        break;
-                    case '1974-1990':
-                        passesFechaFilter = añoProduccion >= 1974 && añoProduccion <= 1990;
-                        break;
-                    case '1990-actualidad':
-                        passesFechaFilter = añoProduccion >= 1990;
-                        break;
-                    default:
-                        passesFechaFilter = true; // Por si hay un valor inesperado
+                // Filtrar por Año de Producción (rangos)
+                let passesFechaFilter = true;
+                if (selectedFecha !== 'todos') {
+                    switch (selectedFecha) {
+                        case 'antes1950':
+                            passesFechaFilter = añoProduccion < 1950;
+                            break;
+                        case '1951-1973':
+                            passesFechaFilter = añoProduccion >= 1951 && añoProduccion <= 1973;
+                            break;
+                        case '1974-1990':
+                            passesFechaFilter = añoProduccion >= 1974 && añoProduccion <= 1990;
+                            break;
+                        case '1990-actualidad':
+                            passesFechaFilter = añoProduccion >= 1990;
+                            break;
+                        default:
+                            passesFechaFilter = true; // Por si hay un valor inesperado
+                    }
                 }
-            }
 
-            // Filtrar por Película
-            let passesPeliculaFilter = true;
-            if (selectedPelicula !== 'todas') {
-                passesPeliculaFilter = nombrePelicula === selectedPelicula;
-            }
+                // Filtrar por Película
+                let passesPeliculaFilter = true;
+                if (selectedPelicula !== 'todas') {
+                    passesPeliculaFilter = nombrePelicula === selectedPelicula;
+                }
 
-            // Filtrar por Sector
-            let passesSectorFilter = true;
-            if (selectedSector !== 'todos') {
-                passesSectorFilter = sectorPunto === selectedSector;
-            }
+                // Filtrar por Sector
+                let passesSectorFilter = true;
+                if (selectedSector !== 'todos') {
+                    passesSectorFilter = sectorPunto === selectedSector;
+                }
 
-            return passesFechaFilter && passesPeliculaFilter && passesSectorFilter;
+                return passesFechaFilter && passesPeliculaFilter && passesSectorFilter;
+            });
+
+            // Volver a dibujar el mapa con los puntos filtrados
+            drawMap(filteredFeatures, allSectoresData.features);
+            // Opcional: Cerrar el menú lateral después de aplicar filtros
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            menuToggle.classList.remove('active');
         });
+    }
 
-        // Volver a dibujar el mapa con los puntos filtrados
-        drawMap(filteredFeatures, allSectoresData.features);
-        // Opcional: Cerrar el menú lateral después de aplicar filtros
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-        menuToggle.classList.remove('active');
-    });
 
     // 8. Manejo de la Ventana Modal "Acerca de"
-    if (acercaDeLink) {
+    if (acercaDeLink && aboutModal && closeModalBtn) { // Asegura que todos los elementos existen
         acercaDeLink.addEventListener('click', (e) => {
             e.preventDefault(); // Evita que el enlace recargue la página
             aboutModal.style.display = 'flex'; // Usamos 'flex' para centrar la modal
         });
-    }
 
-    if (closeModalBtn) {
         closeModalBtn.addEventListener('click', () => {
             aboutModal.style.display = 'none';
         });
+
+        // Cerrar modal al hacer clic fuera del contenido del modal
+        window.addEventListener('click', (event) => {
+            if (event.target === aboutModal) { // Si el clic fue directamente en el fondo del modal (no en su contenido)
+                aboutModal.style.display = 'none';
+            }
+        });
+    } else {
+        console.warn("Algunos elementos de la modal 'Acerca de' no fueron encontrados.");
     }
 
-    // Cerrar modal al hacer clic fuera del contenido del modal
-    window.addEventListener('click', (event) => {
-        if (event.target === aboutModal) { // Si el clic fue directamente en el fondo del modal (no en su contenido)
-            aboutModal.style.display = 'none';
-        }
-    });
 
     // Iniciar la carga de datos cuando el DOM esté completamente listo
     loadGeoJSONData();
