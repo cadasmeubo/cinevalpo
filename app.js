@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // *** IMPORTANTE: REEMPLAZA 'TU_API_KEY_AQUI' CON TU CLAVE DE API DE GOOGLE CLOUD ***
-    const Maps_API_KEY = 'TU_API_KEY_AQUI'; // ¡No olvides reemplazar esto!
-    // ********************************************************************************
+    // Se elimina la declaración de Maps_API_KEY
+    // const Maps_API_KEY = 'TU_API_KEY_AQUI'; 
 
     const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
 
@@ -63,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function populateFilters(locacionesFeatures, sectoresFeatures) {
-        // Usa 'nombre_peli' en minúsculas
         const peliculas = [...new Set(locacionesFeatures.map(f => f.properties.nombre_peli))].filter(Boolean).sort();
         peliculaFilter.innerHTML = '<option value="todas">Todas</option>';
         peliculas.forEach(pelicula => {
@@ -111,19 +109,17 @@ document.addEventListener('DOMContentLoaded', () => {
             onEachFeature: function (feature, layer) {
                 if (feature.properties && feature.geometry && feature.geometry.coordinates) {
                     const props = feature.properties;
-                    const coords = feature.geometry.coordinates; // [longitud, latitud]
-                    const lat = coords[1];
-                    const lng = coords[0];
+                    // No necesitamos las coordenadas para Street View aquí
+                    // const coords = feature.geometry.coordinates;
+                    // const lat = coords[1];
+                    // const lng = coords[0];
 
-                    // Si la imagen_asociada es una URL completa, úsala directamente
-                    // Si es solo un nombre de archivo, prefieres 'images/' + nombre
                     const imageUrl = props.imagen_asociada && props.imagen_asociada.startsWith('http')
                                    ? props.imagen_asociada
                                    : `images/${props.imagen_asociada || 'no-image.jpg'}`;
 
-
-                    // URL para incrustar Street View
-                    const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=${Maps_API_KEY}&location=${lat},${lng}&heading=0&pitch=0&fov=90`; // Ajusta heading, pitch, fov si lo necesitas
+                    // Se elimina la URL de Street View incrustado y el iframe
+                    // const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=${Maps_API_KEY}&location=${lat},${lng}&heading=0&pitch=0&fov=90`;
 
                     const popupContent = `
                         <div class="popup-content">
@@ -134,22 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p><strong>Nota Breve:</strong> ${props.nota_breve || 'Sin descripción'}</p>
                             <p><strong>Sector:</strong> ${props.sector || 'N/A'}</p>
                             
-                            <div class="street-view-container">
-                                <iframe
-                                    width="100%"
-                                    height="200"
-                                    frameborder="0"
-                                    style="border:0"
-                                    src="${streetViewEmbedUrl}"
-                                    allowfullscreen
-                                    loading="lazy"
-                                    referrerpolicy="no-referrer-when-downgrade">
-                                </iframe>
                             </div>
-                            <small class="street-view-note">Vista panorámica de Street View (requiere API Key).</small>
-                        </div>
                     `;
-                    layer.bindPopup(popupContent, {maxWidth: 400}); // Ajusta el maxWidth del popup si es necesario
+                    layer.bindPopup(popupContent, {maxWidth: 400});
                 }
             }
         }).addTo(locacionesLayerGroup);
@@ -163,9 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const filteredFeatures = allLocacionesData.features.filter(feature => {
                 const props = feature.properties;
-                const añoProduccion = parseInt(props.año); // Usa 'props.año' ahora
-                const nombrePelicula = props.nombre_peli; // Usa 'props.nombre_peli' ahora
-                const sectorPunto = props.sector; // Usa 'props.sector' ahora
+                const añoProduccion = parseInt(props.año);
+                const nombrePelicula = props.nombre_peli;
+                const sectorPunto = props.sector;
 
                 let passesFechaFilter = true;
                 if (selectedFecha !== 'todos') {
