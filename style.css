@@ -15,12 +15,13 @@ html, body {
 
 /* Estilo del Mapa */
 #map {
-    height: 100%;
+    height: 100%; /* ESTO ES CRUCIAL para que Leaflet funcione */
     width: 100%;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1; /* Asegura que el mapa esté debajo de la cabecera y el menú */
+    background-color: #e0e0e0; /* Un color de fondo para depuración, puedes quitarlo si quieres */
 }
 
 /* Cabecera Principal */
