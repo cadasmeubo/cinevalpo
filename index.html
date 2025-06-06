@@ -11,17 +11,17 @@
 </head>
 <body>
     <header class="main-header">
-        <div class="logo-container">
-            <img src="images/logo.png" alt="Logo del Proyecto" class="project-logo">
-        </div>
         <button class="menu-toggle" aria-label="Abrir menú">
             <span class="hamburger-icon"></span>
         </button>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Logo del Proyecto" class="project-logo">
+        </div>
     </header>
 
     <aside class="sidebar">
         <nav>
-            <h3>Filtros</h3>
+            <h3>Filtros de Contenido</h3>
             <div class="filter-group">
                 <label for="fecha-filter">Año de Producción:</label>
                 <select id="fecha-filter">
@@ -53,12 +53,16 @@
     </aside>
 
     <div id="map"></div>
-    <div class="overlay"></div> <div id="about-modal" class="modal">
+
+    <div class="overlay"></div>
+
+    <div id="about-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
+            <span class="close-button" aria-label="Cerrar">&times;</span>
             <h2>Acerca del Proyecto</h2>
-            <p>Este geoportal es un proyecto dedicado a explorar las locaciones cinematográficas de Valparaíso, Chile, utilizando datos geográficos para visualizar y filtrar producciones relacionadas con la ciudad.</p>
-            <p>Desarrollado con Leaflet y OpenStreetMap.</p>
+            <p>Este geoportal es un proyecto dedicado a explorar las locaciones cinematográficas de Valparaíso, Chile. Utiliza datos geográficos para visualizar y filtrar producciones relacionadas con la ciudad.</p>
+            <p>Desarrollado con **Leaflet** para el mapa interactivo y **OpenStreetMap** como base cartográfica.</p>
+            <p>El objetivo es mostrar la riqueza cultural y cinematográfica de Valparaíso a través de sus espacios urbanos, vinculando la información de películas con sus ubicaciones específicas.</p>
             </div>
     </div>
 
