@@ -8,20 +8,20 @@
 html, body {
     height: 100%;
     width: 100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente un poco más moderna */
-    overflow: hidden; /* Previene el scroll del cuerpo principal */
-    color: #333; /* Color de texto por defecto */
+    font-family: sans-serif; /* Reemplazar con 'Hero', sans-serif; si tienes la fuente web */
+    overflow: hidden;
+    color: #373643; /* Textos */
 }
 
 /* Estilo del Mapa */
 #map {
-    height: 100%; /* ESTO ES CRUCIAL para que Leaflet funcione */
+    height: 100%;
     width: 100%;
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 1; /* Asegura que el mapa esté debajo de la cabecera y el menú */
-    background-color: #e0e0e0; /* Un color de fondo para depuración, puedes quitarlo si quieres */
+    z-index: 1;
+    background-color: #e0e0e0;
 }
 
 /* Cabecera Principal */
@@ -30,28 +30,28 @@ html, body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 60px; /* Altura de la cabecera */
-    background-color: rgba(255, 255, 255, 0.95); /* Fondo blanco semi-transparente */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15); /* Sombra más suave */
+    height: 60px;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     display: flex;
     align-items: center;
     padding: 0 20px;
-    z-index: 1000; /* Asegura que esté por encima de todo */
+    z-index: 1000;
 }
 
 .logo-container {
     height: 100%;
     display: flex;
     align-items: center;
-    position: absolute; /* Posiciona el logo al centro horizontal */
+    position: absolute;
     left: 50%;
     transform: translateX(-50%);
 }
 
 .project-logo {
-    height: 50px; /* Ajusta el tamaño del logo */
+    height: 50px;
     width: auto;
-    object-fit: contain; /* Asegura que la imagen se ajuste sin distorsionarse */
+    object-fit: contain;
 }
 
 /* Botón de Menú Hamburguesa */
@@ -61,10 +61,10 @@ html, body {
     cursor: pointer;
     padding: 10px;
     position: absolute;
-    left: 10px; /* Alineado a la izquierda */
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 1001; /* Por encima de la cabecera */
+    z-index: 1001;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -72,9 +72,9 @@ html, body {
 
 .hamburger-icon {
     display: block;
-    width: 28px; /* Un poco más grande */
+    width: 28px;
     height: 3px;
-    background-color: #333;
+    background-color: #373643; /* Textos */
     position: relative;
     transition: background-color 0.3s ease;
     border-radius: 2px;
@@ -86,14 +86,14 @@ html, body {
     display: block;
     width: 28px;
     height: 3px;
-    background-color: #333;
+    background-color: #373643; /* Textos */
     position: absolute;
-    transition: transform 0.3s ease, top 0.3s ease; /* Transición para ambos */
+    transition: transform 0.3s ease, top 0.3s ease;
     border-radius: 2px;
 }
 
 .hamburger-icon::before {
-    top: -9px; /* Separación un poco más grande */
+    top: -9px;
 }
 
 .hamburger-icon::after {
@@ -106,33 +106,33 @@ html, body {
 }
 
 .menu-toggle.active .hamburger-icon::before {
-    transform: translateY(9px) rotate(45deg); /* Ajuste basado en el nuevo top */
+    transform: translateY(9px) rotate(45deg);
 }
 
 .menu-toggle.active .hamburger-icon::after {
-    transform: translateY(-9px) rotate(-45deg); /* Ajuste basado en el nuevo top */
+    transform: translateY(-9px) rotate(-45deg);
 }
 
 /* Menú Lateral (Sidebar) */
 .sidebar {
     position: fixed;
     top: 0;
-    left: -320px; /* Oculto por defecto, un poco más ancho */
+    left: -320px;
     width: 320px;
     height: 100%;
-    background-color: #fff;
-    box-shadow: 2px 0 15px rgba(0,0,0,0.25); /* Sombra más pronunciada */
-    z-index: 999; /* Por debajo de la cabecera */
-    transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Curva de velocidad suave */
-    padding-top: 80px; /* Espacio para la cabecera */
+    background-color: #f9f9f9; /* Un gris claro de fondo */
+    box-shadow: 2px 0 15px rgba(0,0,0,0.25);
+    z-index: 999;
+    transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    padding-top: 80px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Para empujar el footer hacia abajo */
-    overflow-y: auto; /* Permite scroll si el contenido es largo */
+    justify-content: space-between;
+    overflow-y: auto;
 }
 
 .sidebar.active {
-    left: 0; /* Visible */
+    left: 0;
 }
 
 .sidebar nav {
@@ -141,7 +141,7 @@ html, body {
 
 .sidebar h3 {
     margin-bottom: 25px;
-    color: #2c3e50; /* Color más oscuro */
+    color: #004aad; /* Color principal */
     font-size: 1.4rem;
     text-align: center;
 }
@@ -154,7 +154,7 @@ html, body {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
-    color: #4a4a4a;
+    color: #373643; /* Textos */
     font-size: 0.95rem;
 }
 
@@ -164,10 +164,10 @@ html, body {
     border: 1px solid #dcdcdc;
     border-radius: 5px;
     font-size: 1rem;
-    background-color: #f8f8f8;
-    appearance: none; /* Elimina estilos por defecto del select */
+    background-color: #fff;
+    appearance: none;
     -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M9.293%2012.95l.707.707L15%209.707l-1.414-1.414L10%2011.536l-3.586-3.586L5%209.707z%22%20fill%3D%22%232c3e50%22%2F%3E%3C%2Fsvg%3E"); /* Icono de flecha */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M9.293%2012.95l.707.707L15%209.707l-1.414-1.414L10%2011.536l-3.586-3.586L5%209.707z%22%20fill%3D%22%23373643%22%2F%3E%3C%2Fsvg%3E"); /* Textos */
     background-repeat: no-repeat;
     background-position: right 10px center;
     cursor: pointer;
@@ -175,14 +175,14 @@ html, body {
 
 .filter-group select:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    border-color: #38b6ff; /* Color secundario */
+    box-shadow: 0 0 0 3px rgba(56, 182, 255, 0.25);
 }
 
 .apply-filters-button {
     width: 100%;
     padding: 12px;
-    background-color: #007bff; /* Color azul primario */
+    background-color: #004aad; /* Color principal */
     color: white;
     border: none;
     border-radius: 5px;
@@ -196,7 +196,7 @@ html, body {
 }
 
 .apply-filters-button:hover {
-    background-color: #0056b3;
+    background-color: #003a8a;
     transform: translateY(-2px);
 }
 .apply-filters-button:active {
@@ -206,13 +206,13 @@ html, body {
 .reset-filters-button {
     width: 100%;
     padding: 12px;
-    background-color: #6c757d; /* Un color gris para indicar una acción secundaria */
+    background-color: #707076; /* Pasivos */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1.15rem;
-    margin-top: 15px; /* Separación del botón de aplicar */
+    margin-top: 15px;
     transition: background-color 0.2s ease, transform 0.1s ease;
     font-weight: bold;
     text-transform: uppercase;
@@ -220,7 +220,7 @@ html, body {
 }
 
 .reset-filters-button:hover {
-    background-color: #5a6268;
+    background-color: #5e5e64;
     transform: translateY(-2px);
 }
 .reset-filters-button:active {
@@ -231,17 +231,17 @@ html, body {
     padding: 20px;
     border-top: 1px solid #eee;
     text-align: center;
-    background-color: #f9f9f9;
+    background-color: #fff;
 }
 
 .sidebar-footer .sidebar-logo {
-    height: 40px; /* Tamaño del logo pequeño */
+    height: 40px;
     margin-bottom: 10px;
     object-fit: contain;
 }
 
 .sidebar-footer a {
-    color: #007bff;
+    color: #004aad; /* Color principal */
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 600;
@@ -258,71 +258,70 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0); /* Inicialmente transparente */
-    backdrop-filter: blur(0px); /* Inicialmente sin blur */
-    pointer-events: none; /* No interfiere con clics cuando está oculto */
-    transition: background-color 0.4s ease-out, backdrop-filter 0.4s ease-out; /* Transición más larga */
-    z-index: 998; /* Debajo del sidebar pero encima del mapa */
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    pointer-events: none;
+    transition: background-color 0.4s ease-out, backdrop-filter 0.4s ease-out;
+    z-index: 998;
 }
 
 .overlay.active {
-    background-color: rgba(0, 0, 0, 0.5); /* Oscurece el fondo */
-    backdrop-filter: blur(5px); /* Aplica el blur */
-    pointer-events: auto; /* Permite clics para cerrar el menú */
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    pointer-events: auto;
 }
 
 /* Estilos de Popups de Leaflet */
 .leaflet-popup-content-wrapper {
     border-radius: 8px;
-    padding: 0; /* Eliminar padding interno del wrapper */
-    overflow: hidden; /* Asegura que la imagen no se salga */
+    padding: 0;
+    overflow: hidden;
 }
 
 .leaflet-popup-content {
-    padding: 10px !important; /* Re-aplicar padding solo al contenido */
+    padding: 10px !important;
     text-align: center;
-    min-width: 200px; /* Ancho mínimo para el popup */
+    min-width: 200px;
 }
 
 .popup-image {
     max-width: 100%;
     height: auto;
-    max-height: 180px; /* Altura máxima para la imagen del popup */
+    max-height: 180px;
     display: block;
     margin: 0 auto 10px auto;
     border-radius: 4px;
-    object-fit: cover; /* Asegura que la imagen cubra el espacio sin distorsionarse */
+    object-fit: cover;
+    cursor: pointer; /* Indicar que la imagen es clickeable */
 }
 
 .popup-content h4 {
     margin-bottom: 5px;
-    color: #2c3e50;
+    color: #004aad; /* Color principal */
     font-size: 1.1rem;
 }
 
 .popup-content p {
     font-size: 0.85em;
-    color: #666;
+    color: #373643; /* Textos */
     margin-bottom: 3px;
     line-height: 1.4;
 }
 
-/* Estilos de la Ventana Modal */
+/* Estilos de la Ventana Modal "Acerca de" */
 .modal {
-    display: none; /* Oculto por defecto */
-    position: fixed; /* Crucial para que aparezca encima de todo y no en el flujo normal */
-    z-index: 2000; /* Un valor alto para asegurar que esté por encima de todo lo demás */
+    display: none;
+    position: fixed;
+    z-index: 2000;
     left: 0;
     top: 0;
-    width: 100%; /* Ocupa todo el ancho */
-    height: 100%; /* Ocupa toda la altura */
-    overflow: auto; /* Permite desplazamiento si el contenido es demasiado grande */
-    background-color: rgba(0,0,0,0.6); /* Fondo semi-transparente oscuro */
-    backdrop-filter: blur(3px); /* Efecto de desenfoque en el fondo */
-
-    /* Para centrar el contenido del modal */
-    justify-content: center; /* Centrado horizontal */
-    align-items: center; /* Centrado vertical */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
@@ -330,23 +329,22 @@ html, body {
     padding: 30px;
     border: 1px solid #888;
     width: 80%;
-    max-width: 500px; /* Tamaño máximo para el contenido */
+    max-width: 500px;
     border-radius: 10px;
-    position: relative; /* Para posicionar el botón de cerrar dentro de él */
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3); /* Sombra más dramática */
+    position: relative;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     animation-name: animatemodal;
     animation-duration: 0.4s;
     text-align: center;
 }
 
-/* Animación para que la modal aparezca */
 @keyframes animatemodal {
-    from {transform: scale(0.7); opacity: 0;} /* Aparece desde más pequeño y transparente */
+    from {transform: scale(0.7); opacity: 0;}
     to {transform: scale(1); opacity: 1;}
 }
 
 .modal-content h2 {
-    color: #2c3e50;
+    color: #004aad; /* Color principal */
     margin-bottom: 15px;
     font-size: 1.8rem;
 }
@@ -354,13 +352,13 @@ html, body {
 .modal-content p {
     font-size: 1rem;
     line-height: 1.6;
-    color: #555;
+    color: #373643; /* Textos */
     margin-bottom: 10px;
 }
 
 .close-button {
     color: #aaa;
-    position: absolute; /* Para posicionarlo libremente dentro de modal-content */
+    position: absolute;
     top: 10px;
     right: 15px;
     font-size: 28px;
@@ -374,6 +372,28 @@ html, body {
     color: #333;
     text-decoration: none;
     cursor: pointer;
+}
+
+/* Estilos para la ampliación de la imagen del popup */
+.image-viewer-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 2100; /* Mayor que la modal */
+    justify-content: center;
+    align-items: center;
+    cursor: pointer; /* Indicar que se puede cerrar */
+}
+
+.image-viewer-overlay img {
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
 }
 
 /* Media Queries para Responsividad */
@@ -399,7 +419,7 @@ html, body {
     }
 
     .sidebar {
-        width: 280px; /* Un poco más estrecho en tablets */
+        width: 280px;
         left: -280px;
         padding-top: 65px;
     }
@@ -434,21 +454,25 @@ html, body {
         padding: 5px;
     }
     .sidebar {
-        width: 100%; /* Ocupa todo el ancho en móviles muy pequeños */
+        width: 100%;
         left: -100%;
         padding-top: 60px;
     }
+
     .sidebar.active {
         left: 0;
     }
+
     .modal-content {
         width: 95%;
         padding: 20px;
-        margin: 15px; /* Pequeño margen para que no se pegue a los bordes */
+        margin: 15px;
     }
+
     .modal-content h2 {
         font-size: 1.5rem;
     }
+
     .modal-content p {
         font-size: 0.9rem;
     }
