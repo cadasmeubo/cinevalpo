@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0x30zNzTYCI+f9Q/TxcK2F6z/vF422l+s/35RzJd/l15+C/4zD4y8w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -24,25 +25,34 @@
             <h3>Filtros de Contenido</h3>
             <div class="filter-group">
                 <label for="fecha-filter">Año de Producción:</label>
-                <select id="fecha-filter">
-                    <option value="todos">Todos</option>
-                    <option value="antes1950">Antes de 1950</option>
-                    <option value="1951-1973">1951-1973</option>
-                    <option value="1974-1990">1974-1990</option>
-                    <option value="1990-actualidad">1990-Actualidad</option>
-                </select>
+                <div class="filter-item">
+                    <i class="fas fa-calendar-alt filter-icon"></i>
+                    <select id="fecha-filter">
+                        <option value="todos">Todos</option>
+                        <option value="antes1950">Antes de 1950</option>
+                        <option value="1951-1973">1951-1973</option>
+                        <option value="1974-1990">1974-1990</option>
+                        <option value="1990-actualidad">1990-Actualidad</option>
+                    </select>
+                </div>
             </div>
             <div class="filter-group">
                 <label for="pelicula-filter">Película:</label>
-                <select id="pelicula-filter">
-                    <option value="todas">Todas</option>
+                <div class="filter-item">
+                    <i class="fas fa-film filter-icon"></i>
+                    <select id="pelicula-filter">
+                        <option value="todas">Todas</option>
                     </select>
+                </div>
             </div>
             <div class="filter-group">
                 <label for="sector-filter">Sector:</label>
-                <select id="sector-filter">
-                    <option value="todos">Todos</option>
+                <div class="filter-item">
+                    <i class="fas fa-map-marker-alt filter-icon"></i>
+                    <select id="sector-filter">
+                        <option value="todos">Todos</option>
                     </select>
+                </div>
             </div>
             <button id="aplicar-filtros" class="apply-filters-button">Aplicar Filtros</button>
             <button id="reset-filters-btn" class="reset-filters-button">Resetear Filtros</button>
