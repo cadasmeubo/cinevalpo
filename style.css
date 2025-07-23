@@ -158,8 +158,21 @@ html, body {
     font-size: 0.95rem;
 }
 
+.filter-item {
+    display: flex; /* Para alinear el icono con el select */
+    align-items: center;
+    gap: 10px; /* Espacio entre el icono y el select */
+}
+
+.filter-icon {
+    color: #004aad; /* Color azul para los iconos */
+    font-size: 1.2rem; /* Tamaño de los iconos */
+    min-width: 20px; /* Asegura que el espacio para el icono sea constante */
+    text-align: center;
+}
+
 .filter-group select {
-    width: 100%;
+    flex-grow: 1; /* Permite que el select ocupe el espacio restante */
     padding: 10px;
     border: 1px solid #dcdcdc;
     border-radius: 5px;
@@ -230,14 +243,19 @@ html, body {
 .sidebar-footer {
     padding: 20px;
     border-top: 1px solid #eee;
-    text-align: center;
+    text-align: center; /* Alinea el contenido del footer al centro */
     background-color: #fff;
+    display: flex; /* Usar flexbox para centrar elementos */
+    flex-direction: column; /* Apilar elementos verticalmente */
+    align-items: center; /* Centrar horizontalmente */
+    gap: 10px; /* Espacio entre el logo y el texto */
 }
 
 .sidebar-footer .sidebar-logo {
     height: 40px;
-    margin-bottom: 10px;
+    width: auto; /* Asegura que la imagen no se distorsione */
     object-fit: contain;
+    margin-bottom: 0; /* Elimina el margen inferior si existía */
 }
 
 .sidebar-footer a {
@@ -271,12 +289,35 @@ html, body {
     pointer-events: auto;
 }
 
+/* Ocultar el control de zoom de Leaflet */
+.leaflet-control-zoom {
+    display: none !important;
+}
+
 /* Estilos de Popups de Leaflet */
 .leaflet-popup-content-wrapper {
     border-radius: 8px;
     padding: 0;
     overflow: hidden;
+    /* Para la animación de escalado */
+    transform-origin: bottom center; /* Escalar desde la base del popup */
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease-out;
+    opacity: 0; /* Inicialmente oculto para la animación de entrada */
+    transform: scale(0.1); /* Inicialmente muy pequeño */
 }
+
+/* Clase para mostrar el popup con animación */
+.leaflet-popup-pane .leaflet-popup-open .leaflet-popup-content-wrapper {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Estilos al cerrar el popup (simula el encogimiento) */
+.leaflet-popup-pane .leaflet-popup-close-animation .leaflet-popup-content-wrapper {
+    opacity: 0;
+    transform: scale(0.1);
+}
+
 
 .leaflet-popup-content {
     padding: 10px !important;
@@ -292,8 +333,35 @@ html, body {
     margin: 0 auto 10px auto;
     border-radius: 4px;
     object-fit: cover;
-    cursor: pointer; /* Indicar que la imagen es clickeable */
+    cursor: pointer;
+    position: relative; /* Para posicionar el icono de lupa */
 }
+
+.popup-image-wrapper {
+    position: relative; /* Contenedor para la imagen y el icono de lupa */
+    display: block;
+    margin: 0 auto 10px auto;
+}
+
+.zoom-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: rgba(0, 74, 173, 0.8); /* Azul principal con opacidad */
+    color: white;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8em;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    pointer-events: none; /* Permite clickear la imagen a través del icono */
+    opacity: 0.9; /* Pequeña opacidad para que no opaque la imagen */
+}
+
 
 .popup-content h4 {
     margin-bottom: 5px;
