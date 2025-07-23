@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const peliculaFilter = document.getElementById('pelicula-filter');
     const sectorFilter = document.getElementById('sector-filter');
     const aplicarFiltrosBtn = document.getElementById('aplicar-filtros');
-    const resetFiltrosBtn = document.getElementById('reset-filters-btn'); // Nueva línea
+    const resetFiltrosBtn = document.getElementById('reset-filters-btn');
     const acercaDeLink = document.getElementById('acerca-de-link');
     const aboutModal = document.getElementById('about-modal');
     const closeModalBtn = document.querySelector('.close-button');
@@ -54,7 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
             allSectoresData = await sectoresResponse.json();
 
             populateFilters(allLocacionesData.features, allSectoresData.features);
-            drawMap(allLocacionesData.features, allSectoresData.features);
+            // Al cargar inicialmente, no hay ningún sector seleccionado, por lo que pasamos 'todos'
+            drawMap(allLocacionesData.features, allSectoresData.features, 'todos');
 
         } catch (error) {
             console.error('Error al cargar los datos GeoJSON:', error);
@@ -72,7 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
             peliculaFilter.appendChild(option);
         });
 
-        const sectores = [...new Set(sectoresFeatures.map(f => f.properties.Nombre_Sector || f.properties.name))].filter(Boolean).sort();
+        // Asegurarse de usar "Nombre_Cer" para los sectores del GeoJSON de sectores
+        const sectores = [...new Set(sectoresFeatures.map(f => f.properties.Nombre_Cer || f.properties.name))].filter(Boolean).sort();
         sectorFilter.innerHTML = '<option value="todos">Todos</option>';
         sectores.forEach(sector => {
             const option = document.createElement('option');
@@ -82,23 +84,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function drawMap(locacionesFeatures, sectoresFeatures) {
+    // drawMap ahora acepta un tercer parámetro para el sector seleccionado
+    function drawMap(locacionesFeatures, sectoresFeatures, currentSelectedSector) {
         locacionesLayerGroup.clearLayers();
         sectoresLayerGroup.clearLayers();
 
         L.geoJson(sectoresFeatures, {
             style: function (feature) {
+                const sectorName = feature.properties.Nombre_Cer || feature.properties.name;
+                const isSelected = currentSelectedSector !== 'todos' && sectorName === currentSelectedSector;
                 return {
-                    color: '#ff7800',
-                    weight: 2,
+                    color: isSelected ? '#007bff' : '#ff7800', // Azul para seleccionado, naranja para otros
+                    weight: isSelected ? 4 : 2, // Borde más grueso para seleccionado
                     opacity: 0.6,
-                    fillOpacity: 0.1,
-                    fillColor: '#ff7800'
+                    fillOpacity: isSelected ? 0.3 : 0.1, // Relleno un poco más opaco para seleccionado
+                    fillColor: isSelected ? '#007bff' : '#ff7800'
                 };
             },
             onEachFeature: function (feature, layer) {
-                if (feature.properties && (feature.properties.Nombre_Sector || feature.properties.name)) {
-                    layer.bindPopup(`<h4>Sector: ${feature.properties.Nombre_Sector || feature.properties.name}</h4>`);
+                if (feature.properties && (feature.properties.Nombre_Cer || feature.properties.name)) {
+                    layer.bindPopup(`<h4>Sector: ${feature.properties.Nombre_Cer || feature.properties.name}</h4>`);
                 }
             }
         }).addTo(sectoresLayerGroup);
@@ -110,24 +115,16 @@ document.addEventListener('DOMContentLoaded', () => {
             onEachFeature: function (feature, layer) {
                 if (feature.properties && feature.geometry && feature.geometry.coordinates) {
                     const props = feature.properties;
-                    // No necesitamos las coordenadas para Street View aquí
-                    // const coords = feature.geometry.coordinates;
-                    // const lat = coords[1];
-                    // const lng = coords[0];
-
+                    
                     const imageUrl = props.imagen_asociada && props.imagen_asociada.startsWith('http')
                                    ? props.imagen_asociada
                                    : `images/${props.imagen_asociada || 'no-image.jpg'}`;
 
-                    // Se elimina la URL de Street View incrustado y el iframe
-                    // const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=${Maps_API_KEY}&location=${lat},${lng}&heading=0&pitch=0&fov=90`;
-
                     const popupContent = `
                         <div class="popup-content">
                             <img src="${imageUrl}" alt="Imagen de la escena" class="popup-image" onerror="this.src='images/no-image.jpg';">
-                            <h4>${props.nombre_peli || 'Sin Nombre'} (${props.año || 'N/A'})</h4>
-                            <p><strong>Director:</strong> ${props.director || 'N/A'}</p>
-                            <p><strong>Género:</strong> ${props.género || 'N/A'}</p>
+                            <h4>${props.nombre_peli || 'Sin Nombre'} (${props.año_producción || 'N/A'})</h4> <p><strong>Director:</strong> ${props.director || 'N/A'}</p>
+                            <p><strong>Género:</strong> ${props.genero || 'N/A'}</p>
                             <p><strong>Nota Breve:</strong> ${props.nota_breve || 'Sin descripción'}</p>
                             <p><strong>Sector:</strong> ${props.sector || 'N/A'}</p>
                             
@@ -145,9 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedPelicula = peliculaFilter.value;
             const selectedSector = sectorFilter.value;
 
-            const filteredFeatures = allLocacionesData.features.filter(feature => {
+            const filteredLocacionesFeatures = allLocacionesData.features.filter(feature => {
                 const props = feature.properties;
-                const añoProduccion = parseInt(props.año);
+                const añoProduccion = parseInt(props.año_producción); // CAMBIO: props.año_producción
                 const nombrePelicula = props.nombre_peli;
                 const sectorPunto = props.sector;
 
@@ -184,14 +181,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 return passesFechaFilter && passesPeliculaFilter && passesSectorFilter;
             });
 
-            drawMap(filteredFeatures, allSectoresData.features);
+            // Pasar el sector seleccionado a drawMap
+            drawMap(filteredLocacionesFeatures, allSectoresData.features, selectedSector);
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             menuToggle.classList.remove('active');
         });
     }
 
-    // Nuevo bloque para el botón de resetear filtros
     if (resetFiltrosBtn) {
         resetFiltrosBtn.addEventListener('click', () => {
             // Resetear los selectores a sus valores por defecto
@@ -199,8 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
             peliculaFilter.value = 'todas';
             sectorFilter.value = 'todos';
 
-            // Volver a dibujar el mapa con todos los datos originales
-            drawMap(allLocacionesData.features, allSectoresData.features);
+            // Volver a dibujar el mapa con todos los datos originales y sin sector resaltado
+            drawMap(allLocacionesData.features, allSectoresData.features, 'todos');
 
             // Cerrar el sidebar y el overlay
             sidebar.classList.remove('active');
@@ -208,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
             menuToggle.classList.remove('active');
         });
     }
-
 
     if (acercaDeLink && aboutModal && closeModalBtn) {
         acercaDeLink.addEventListener('click', (e) => {
