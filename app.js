@@ -226,4 +226,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Iniciar la Carga de Datos al cargar la página ---
-    loadGeoJSON
+    loadGeoJSONData();
+});
