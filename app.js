@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    [cite_start]const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile [cite: 1]
+    const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
 
     // Nuevo mapa base CartoDB Voyager
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -250,8 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const props = feature.properties;
 
                     const imageUrl = props.imagen_asociada && props.imagen_asociada.startsWith('http')
-                                   ? props.imagen_asociada
-                                   : `images/${props.imagen_asociada || 'no-image.jpg'}`;
+                                ? props.imagen_asociada
+                                : `images/${props.imagen_asociada || 'no-image.jpg'}`;
 
                     const popupContent = `
                         <div class="popup-content">
