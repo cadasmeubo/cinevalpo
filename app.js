@@ -1,15 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const map = L.map('map').setView([-33.0472, -71.6127], 14);
+    [cite_start]const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile [cite: 1]
 
-    // Nuevo mapa base CartoDB Voyager (sin cambios)
+    // Nuevo mapa base CartoDB Voyager
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 20
     }).addTo(map);
 
-    let locacionesLayerGroup = L.featureGroup().addTo(map);
     let sectoresLayerGroup = L.featureGroup().addTo(map);
+    // Declarar el grupo de clusters para las locaciones
+    let markers = new L.markerClusterGroup(); 
+    map.addLayer(markers); // Añadir el grupo de clusters al mapa
 
     let allLocacionesData = [];
     let allSectoresData = null;
@@ -29,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     imageViewerOverlay.className = 'image-viewer-overlay';
     document.body.appendChild(imageViewerOverlay);
 
-    // Inicialización de la UI del menú (sin cambios)
+    // Inicialización de la UI del menú
     if (menuToggle && sidebar && overlay) {
         menuToggle.addEventListener('click', () => {
             sidebar.classList.toggle('active');
@@ -46,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("Algunos elementos del menú (menuToggle, sidebar, overlay) no fueron encontrados.");
     }
 
-    // Funciones de carga de datos (sin cambios)
     async function loadGeoJSONData() {
         try {
             const locacionesResponse = await fetch('data/locaciones_valparaiso.geojson');
@@ -65,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Funciones de filtrado y población de selectores (sin cambios importantes)
     function getUniqueYears(features) {
         const years = new Set();
         features.forEach(f => {
@@ -164,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (validFechaRanges['1974-1990']) fechaFilter.innerHTML += '<option value="1974-1990">1974-1990</option>';
         if (validFechaRanges['1990-actualidad']) fechaFilter.innerHTML += '<option value="1990-actualidad">1990-Actualidad</option>';
 
-        // Se verifica si la selección actual de fecha sigue siendo válida
         if (validFechaRanges[currentFechaSelection]) {
             fechaFilter.value = currentFechaSelection;
         } else {
@@ -210,10 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
         drawMap(featuresToDisplayOnMap, allSectoresData.features, finalSectorSelection);
     }
 
-    // Función para dibujar/actualizar el mapa (con cambio de marcador y evento para ampliar imagen)
     function drawMap(locacionesFeatures, sectoresFeatures, currentSelectedSector) {
-        locacionesLayerGroup.clearLayers();
         sectoresLayerGroup.clearLayers();
+        markers.clearLayers(); // Limpiar los marcadores existentes en el grupo de clusters
 
         const sectorStyle = function (feature) {
             const sectorName = feature.properties.Nombre_Cer || feature.properties.name;
@@ -236,12 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }).addTo(sectoresLayerGroup);
 
-        // CAMBIO 3: Icono personalizado para los marcadores
         const locationIcon = L.icon({
             iconUrl: 'images/location_icon.png',
-            iconSize: [32, 32], // Ajusta el tamaño si es necesario
-            iconAnchor: [16, 32], // Ajusta el punto de anclaje para que la punta del icono esté en la ubicación
-            popupAnchor: [0, -32] // Ajusta el punto donde se abre el popup relativo al icono
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
         });
 
         L.geoJson(locacionesFeatures, {
@@ -268,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     layer.bindPopup(popupContent, {maxWidth: 400});
 
-                    // CAMBIO 4: Evento para ampliar la imagen del popup
                     layer.on('popupopen', () => {
                         const popupImage = layer.getPopup().getElement()?.querySelector('.popup-image');
                         if (popupImage) {
@@ -277,23 +273,21 @@ document.addEventListener('DOMContentLoaded', () => {
                                 img.src = popupImage.src;
                                 imageViewerOverlay.innerHTML = '';
                                 imageViewerOverlay.appendChild(img);
-                                imageViewerOverlay.style.display = 'flex'; // Muestra el overlay
+                                imageViewerOverlay.style.display = 'flex';
                             });
                         }
                     });
                 }
             }
-        }).addTo(locacionesLayerGroup);
+        }).addTo(markers); // Añadir los marcadores al grupo de clusters
     }
 
-    // Cerrar el visor de imágenes al hacer clic fuera de la imagen
     imageViewerOverlay.addEventListener('click', (event) => {
-        if (event.target === imageViewerOverlay) { // Solo cierra si se hace clic en el fondo del overlay
+        if (event.target === imageViewerOverlay) {
             imageViewerOverlay.style.display = 'none';
         }
     });
 
-    // Escuchadores de eventos para los filtros y botones (sin cambios)
     fechaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
     peliculaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
     sectorFilter.addEventListener('change', updateAllFilterOptionsAndMap);
@@ -318,7 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Funcionalidad de la modal "Acerca de" (sin cambios)
     if (acercaDeLink && aboutModal && closeModalBtn) {
         acercaDeLink.addEventListener('click', (e) => {
             e.preventDefault();
