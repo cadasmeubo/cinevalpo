@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const peliculaFilter = document.getElementById('pelicula-filter');
     const sectorFilter = document.getElementById('sector-filter');
     const aplicarFiltrosBtn = document.getElementById('aplicar-filtros');
+    const resetFiltrosBtn = document.getElementById('reset-filters-btn'); // Nueva línea
     const acercaDeLink = document.getElementById('acerca-de-link');
     const aboutModal = document.getElementById('about-modal');
     const closeModalBtn = document.querySelector('.close-button');
@@ -189,6 +190,25 @@ document.addEventListener('DOMContentLoaded', () => {
             menuToggle.classList.remove('active');
         });
     }
+
+    // Nuevo bloque para el botón de resetear filtros
+    if (resetFiltrosBtn) {
+        resetFiltrosBtn.addEventListener('click', () => {
+            // Resetear los selectores a sus valores por defecto
+            fechaFilter.value = 'todos';
+            peliculaFilter.value = 'todas';
+            sectorFilter.value = 'todos';
+
+            // Volver a dibujar el mapa con todos los datos originales
+            drawMap(allLocacionesData.features, allSectoresData.features);
+
+            // Cerrar el sidebar y el overlay
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            menuToggle.classList.remove('active');
+        });
+    }
+
 
     if (acercaDeLink && aboutModal && closeModalBtn) {
         acercaDeLink.addEventListener('click', (e) => {
