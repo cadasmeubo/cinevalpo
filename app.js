@@ -1,19 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Se elimina la declaración de Maps_API_KEY
-    // const Maps_API_KEY = 'TU_API_KEY_AQUI'; 
-
     const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
+    // CAMBIO 1: Nuevo mapa base CartoDB Voyager
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
     }).addTo(map);
 
     let locacionesLayerGroup = L.featureGroup().addTo(map);
     let sectoresLayerGroup = L.featureGroup().addTo(map);
 
-    let allLocacionesData = [];
-    let allSectoresData = null;
+    let allLocacionesData = []; // Mantendrá todos los datos de locaciones
+    let allSectoresData = null; // Mantendrá todos los datos de sectores
 
     const menuToggle = document.querySelector('.menu-toggle');
     const sidebar = document.querySelector('.sidebar');
@@ -27,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const aboutModal = document.getElementById('about-modal');
     const closeModalBtn = document.querySelector('.close-button');
 
+    // Inicialización de la UI del menú
     if (menuToggle && sidebar && overlay) {
         menuToggle.addEventListener('click', () => {
             sidebar.classList.toggle('active');
@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("Algunos elementos del menú (menuToggle, sidebar, overlay) no fueron encontrados.");
     }
 
+    // Funciones de carga de datos
     async function loadGeoJSONData() {
         try {
             const locacionesResponse = await fetch('data/locaciones_valparaiso.geojson');
@@ -53,9 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!sectoresResponse.ok) throw new Error('Error al cargar sectores_valparaiso.geojson');
             allSectoresData = await sectoresResponse.json();
 
-            populateFilters(allLocacionesData.features, allSectoresData.features);
-            // Al cargar inicialmente, no hay ningún sector seleccionado, por lo que pasamos 'todos'
-            drawMap(allLocacionesData.features, allSectoresData.features, 'todos');
+            // Inicialmente, actualiza las opciones de todos los filtros y dibuja el mapa con todos los datos
+            updateAllFilterOptionsAndMap();
 
         } catch (error) {
             console.error('Error al cargar los datos GeoJSON:', error);
@@ -63,28 +63,169 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function populateFilters(locacionesFeatures, sectoresFeatures) {
-        const peliculas = [...new Set(locacionesFeatures.map(f => f.properties.nombre_peli))].filter(Boolean).sort();
-        peliculaFilter.innerHTML = '<option value="todas">Todas</option>';
-        peliculas.forEach(pelicula => {
-            const option = document.createElement('option');
-            option.value = pelicula;
-            option.textContent = pelicula;
-            peliculaFilter.appendChild(option);
+    // Función para obtener años únicos para el filtro de fecha
+    function getUniqueYears(features) {
+        const years = new Set();
+        features.forEach(f => {
+            if (f.properties && f.properties.año_producción) {
+                years.add(parseInt(f.properties.año_producción));
+            }
         });
-
-        // Asegurarse de usar "Nombre_Cer" para los sectores del GeoJSON de sectores
-        const sectores = [...new Set(sectoresFeatures.map(f => f.properties.Nombre_Cer || f.properties.name))].filter(Boolean).sort();
-        sectorFilter.innerHTML = '<option value="todos">Todos</option>';
-        sectores.forEach(sector => {
-            const option = document.createElement('option');
-            option.value = sector;
-            option.textContent = sector;
-            sectorFilter.appendChild(option);
-        });
+        return Array.from(years).filter(year => !isNaN(year)).sort((a, b) => a - b);
     }
 
-    // drawMap ahora acepta un tercer parámetro para el sector seleccionado
+    // Función para determinar qué opciones de rango de fecha son válidas
+    function getValidFechaRanges(availableYears) {
+        const validRanges = {
+            'todos': true,
+            'antes1950': false,
+            '1951-1973': false,
+            '1974-1990': false,
+            '1990-actualidad': false
+        };
+
+        availableYears.forEach(year => {
+            if (year < 1950) validRanges['antes1950'] = true;
+            if (year >= 1951 && year <= 1973) validRanges['1951-1973'] = true;
+            if (year >= 1974 && year <= 1990) validRanges['1974-1990'] = true;
+            if (year >= 1990) validRanges['1990-actualidad'] = true;
+        });
+
+        return validRanges;
+    }
+
+    // Función para obtener solo los sectores que tienen puntos de locación asociados
+    function getSectorsWithPoints(locacionesFeatures, sectoresFeatures) {
+        const sectorsWithPoints = new Set(locacionesFeatures.map(f => f.properties.sector).filter(Boolean));
+        
+        // Filtrar los sectores del GeoJSON de polígonos para incluir solo los que tienen puntos
+        return sectoresFeatures.filter(f => {
+            const sectorName = f.properties.Nombre_Cer || f.properties.name;
+            return sectorsWithPoints.has(sectorName);
+        }).map(f => f.properties.Nombre_Cer || f.properties.name).sort();
+    }
+
+    // Función para poblar un selector dado sus opciones y la selección actual
+    function populateSelector(selectorElement, options, currentValue, defaultValue) {
+        selectorElement.innerHTML = `<option value="${defaultValue}">${defaultValue.charAt(0).toUpperCase() + defaultValue.slice(1)}</option>`;
+        options.forEach(optionValue => {
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.textContent = optionValue;
+            selectorElement.appendChild(option);
+        });
+        // Intentar restablecer la selección, si no es válida, ir al valor por defecto
+        if (options.includes(currentValue) || currentValue === defaultValue) {
+            selectorElement.value = currentValue;
+        } else {
+            selectorElement.value = defaultValue;
+        }
+    }
+
+    // CAMBIO 3: Función central para actualizar las opciones de los filtros y el mapa
+    function updateAllFilterOptionsAndMap() {
+        const currentFechaSelection = fechaFilter.value;
+        const currentPeliculaSelection = peliculaFilter.value;
+        const currentSectorSelection = sectorFilter.value;
+
+        // 1. Filtrar los datos base para obtener las locaciones que *podrían* ser mostradas
+        // Basamos el filtrado para las opciones en las selecciones actuales
+        let filteredForOptions = allLocacionesData.features.filter(feature => {
+            const props = feature.properties;
+            const añoProduccion = parseInt(props.año_producción);
+            const nombrePelicula = props.nombre_peli;
+            const sectorPunto = props.sector;
+
+            let passesFecha = true;
+            if (currentFechaSelection !== 'todos') {
+                switch (currentFechaSelection) {
+                    case 'antes1950': passesFecha = añoProduccion < 1950; break;
+                    case '1951-1973': passesFecha = añoProduccion >= 1951 && añoProduccion <= 1973; break;
+                    case '1974-1990': passesFecha = añoProduccion >= 1974 && añoProduccion <= 1990; break;
+                    case '1990-actualidad': passesFecha = añoProduccion >= 1990; break;
+                }
+            }
+
+            let passesPelicula = true;
+            if (currentPeliculaSelection !== 'todas') {
+                passesPelicula = nombrePelicula === currentPeliculaSelection;
+            }
+
+            let passesSector = true;
+            if (currentSectorSelection !== 'todos') {
+                passesSector = sectorPunto === currentSectorSelection;
+            }
+
+            return passesFecha && passesPelicula && passesSector;
+        });
+
+        // 2. Poblar los filtros con las opciones válidas basadas en los datos filtrados
+        // Opciones de películas
+        const peliculas = [...new Set(filteredForOptions.map(f => f.properties.nombre_peli))].filter(Boolean).sort();
+        populateSelector(peliculaFilter, peliculas, currentPeliculaSelection, 'todas');
+
+        // Opciones de años (rangos)
+        const availableYears = getUniqueYears(filteredForOptions);
+        const validFechaRanges = getValidFechaRanges(availableYears);
+        
+        // Reconstruir las opciones de fecha, mostrando solo las válidas
+        fechaFilter.innerHTML = '<option value="todos">Todos</option>';
+        if (validFechaRanges['antes1950']) fechaFilter.innerHTML += '<option value="antes1950">Antes de 1950</option>';
+        if (validFechaRanges['1951-1973']) fechaFilter.innerHTML += '<option value="1951-1973">1951-1973</option>';
+        if (validFechaRanges['1974-1990']) fechaFilter.innerHTML += '<option value="1974-1990">1974-1990</option>';
+        if (validFechaRanges['1990-actualidad']) fechaFilter.innerHTML += '<option value="1990-actualidad">1990-Actualidad</option>';
+
+        // Intentar restablecer la selección de fecha
+        if (validFechaRanges[currentFechaSelection]) {
+            fechaFilter.value = currentFechaSelection;
+        } else {
+            fechaFilter.value = 'todos';
+        }
+        
+        // CAMBIO 2: Opciones de sectores (solo con puntos y existentes en los datos filtrados)
+        const validSectorsForDropdown = getSectorsWithPoints(filteredForOptions, allSectoresData.features);
+        populateSelector(sectorFilter, validSectorsForDropdown, currentSectorSelection, 'todos');
+        
+        // 3. Redibujar el mapa con los datos *actualmente filtrados*
+        // Asegurarse de usar las selecciones más recientes después de la posible corrección de valores no válidos
+        const finalFechaSelection = fechaFilter.value;
+        const finalPeliculaSelection = peliculaFilter.value;
+        const finalSectorSelection = sectorFilter.value;
+
+        const featuresToDisplayOnMap = allLocacionesData.features.filter(feature => {
+            const props = feature.properties;
+            const añoProduccion = parseInt(props.año_producción);
+            const nombrePelicula = props.nombre_peli;
+            const sectorPunto = props.sector;
+
+            let passesFechaFilter = true;
+            if (finalFechaSelection !== 'todos') {
+                switch (finalFechaSelection) {
+                    case 'antes1950': passesFechaFilter = añoProduccion < 1950; break;
+                    case '1951-1973': passesFechaFilter = añoProduccion >= 1951 && añoProduccion <= 1973; break;
+                    case '1974-1990': passesFechaFilter = añoProduccion >= 1974 && añoProduccion <= 1990; break;
+                    case '1990-actualidad': passesFechaFilter = añoProduccion >= 1990; break;
+                }
+            }
+
+            let passesPeliculaFilter = true;
+            if (finalPeliculaSelection !== 'todas') {
+                passesPeliculaFilter = nombrePelicula === finalPeliculaSelection;
+            }
+
+            let passesSectorFilter = true;
+            if (finalSectorSelection !== 'todos') {
+                passesSectorFilter = sectorPunto === finalSectorSelection;
+            }
+
+            return passesFechaFilter && passesPeliculaFilter && passesSectorFilter;
+        });
+
+        // Se pasa el sector seleccionado para el resaltado del polígono
+        drawMap(featuresToDisplayOnMap, allSectoresData.features, finalSectorSelection);
+    }
+
+    // Función para dibujar/actualizar el mapa
     function drawMap(locacionesFeatures, sectoresFeatures, currentSelectedSector) {
         locacionesLayerGroup.clearLayers();
         sectoresLayerGroup.clearLayers();
@@ -123,12 +264,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const popupContent = `
                         <div class="popup-content">
                             <img src="${imageUrl}" alt="Imagen de la escena" class="popup-image" onerror="this.src='images/no-image.jpg';">
-                            <h4>${props.nombre_peli || 'Sin Nombre'} (${props.año_producción || 'N/A'})</h4> <p><strong>Director:</strong> ${props.director || 'N/A'}</p>
+                            <h4>${props.nombre_peli || 'Sin Nombre'} (${props.año_producción || 'N/A'})</h4>
+                            <p><strong>Director:</strong> ${props.director || 'N/A'}</p>
                             <p><strong>Género:</strong> ${props.genero || 'N/A'}</p>
                             <p><strong>Nota Breve:</strong> ${props.nota_breve || 'Sin descripción'}</p>
                             <p><strong>Sector:</strong> ${props.sector || 'N/A'}</p>
-                            
-                            </div>
+                        </div>
                     `;
                     layer.bindPopup(popupContent, {maxWidth: 400});
                 }
@@ -136,53 +277,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }).addTo(locacionesLayerGroup);
     }
 
+    // Escuchadores de eventos para los filtros y botones
+    fechaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
+    peliculaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
+    sectorFilter.addEventListener('change', updateAllFilterOptionsAndMap);
+
     if (aplicarFiltrosBtn) {
         aplicarFiltrosBtn.addEventListener('click', () => {
-            const selectedFecha = fechaFilter.value;
-            const selectedPelicula = peliculaFilter.value;
-            const selectedSector = sectorFilter.value;
-
-            const filteredLocacionesFeatures = allLocacionesData.features.filter(feature => {
-                const props = feature.properties;
-                const añoProduccion = parseInt(props.año_producción); // CAMBIO: props.año_producción
-                const nombrePelicula = props.nombre_peli;
-                const sectorPunto = props.sector;
-
-                let passesFechaFilter = true;
-                if (selectedFecha !== 'todos') {
-                    switch (selectedFecha) {
-                        case 'antes1950':
-                            passesFechaFilter = añoProduccion < 1950;
-                            break;
-                        case '1951-1973':
-                            passesFechaFilter = añoProduccion >= 1951 && añoProduccion <= 1973;
-                            break;
-                        case '1974-1990':
-                            passesFechaFilter = añoProduccion >= 1974 && añoProduccion <= 1990;
-                            break;
-                        case '1990-actualidad':
-                            passesFechaFilter = añoProduccion >= 1990;
-                            break;
-                        default:
-                            passesFechaFilter = true;
-                    }
-                }
-
-                let passesPeliculaFilter = true;
-                if (selectedPelicula !== 'todas') {
-                    passesPeliculaFilter = nombrePelicula === selectedPelicula;
-                }
-
-                let passesSectorFilter = true;
-                if (selectedSector !== 'todos') {
-                    passesSectorFilter = sectorPunto === selectedSector;
-                }
-
-                return passesFechaFilter && passesPeliculaFilter && passesSectorFilter;
-            });
-
-            // Pasar el sector seleccionado a drawMap
-            drawMap(filteredLocacionesFeatures, allSectoresData.features, selectedSector);
+            // El mapa ya se actualiza automáticamente con cada cambio en el filtro.
+            // Este botón solo cerrará el sidebar
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             menuToggle.classList.remove('active');
@@ -196,8 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
             peliculaFilter.value = 'todas';
             sectorFilter.value = 'todos';
 
-            // Volver a dibujar el mapa con todos los datos originales y sin sector resaltado
-            drawMap(allLocacionesData.features, allSectoresData.features, 'todos');
+            // Volver a actualizar las opciones de los filtros y dibujar el mapa
+            updateAllFilterOptionsAndMap();
 
             // Cerrar el sidebar y el overlay
             sidebar.classList.remove('active');
@@ -206,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Funcionalidad de la modal "Acerca de"
     if (acercaDeLink && aboutModal && closeModalBtn) {
         acercaDeLink.addEventListener('click', (e) => {
             e.preventDefault();
