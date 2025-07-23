@@ -1,25 +1,20 @@
-// app.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Variables Globales ---
-    // Instancia del mapa Leaflet
-    const map = L.map('map').setView([-33.0472, -71.6127], 14); // Coordenadas y zoom inicial para Valparaíso
+    // Se elimina la declaración de Maps_API_KEY
+    // const Maps_API_KEY = 'TU_API_KEY_AQUI'; 
 
-    // Capa base de OpenStreetMap
+    const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Grupos de capas para gestionar marcadores y sectores de forma independiente
     let locacionesLayerGroup = L.featureGroup().addTo(map);
     let sectoresLayerGroup = L.featureGroup().addTo(map);
 
-    // Variables para almacenar todos los datos GeoJSON una vez cargados
-    let allLocacionesData = null; // Almacena el FeatureCollection de locaciones
-    let allSectoresData = null;   // Almacena el FeatureCollection de sectores
+    let allLocacionesData = [];
+    let allSectoresData = null;
 
-    // Referencias a elementos del DOM
     const menuToggle = document.querySelector('.menu-toggle');
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.querySelector('.overlay');
@@ -31,12 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const aboutModal = document.getElementById('about-modal');
     const closeModalBtn = document.querySelector('.close-button');
 
-    // --- Manejo del Menú Lateral (Sidebar) ---
     if (menuToggle && sidebar && overlay) {
         menuToggle.addEventListener('click', () => {
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
-            menuToggle.classList.toggle('active'); // Para la animación del icono hamburguesa
+            menuToggle.classList.toggle('active');
         });
 
         overlay.addEventListener('click', () => {
@@ -45,23 +39,19 @@ document.addEventListener('DOMContentLoaded', () => {
             menuToggle.classList.remove('active');
         });
     } else {
-        console.warn("Algunos elementos del menú (menuToggle, sidebar, overlay) no fueron encontrados en el DOM.");
+        console.warn("Algunos elementos del menú (menuToggle, sidebar, overlay) no fueron encontrados.");
     }
 
-    // --- Carga de Datos GeoJSON ---
     async function loadGeoJSONData() {
         try {
-            // Cargar locaciones_valparaiso.geojson
             const locacionesResponse = await fetch('data/locaciones_valparaiso.geojson');
-            if (!locacionesResponse.ok) throw new Error('Error al cargar data/locaciones_valparaiso.geojson');
+            if (!locacionesResponse.ok) throw new Error('Error al cargar locaciones_valparaiso.geojson');
             allLocacionesData = await locacionesResponse.json();
 
-            // Cargar sectores_valparaiso.geojson
             const sectoresResponse = await fetch('data/sectores_valparaiso.geojson');
-            if (!sectoresResponse.ok) throw new Error('Error al cargar data/sectores_valparaiso.geojson');
+            if (!sectoresResponse.ok) throw new Error('Error al cargar sectores_valparaiso.geojson');
             allSectoresData = await sectoresResponse.json();
 
-            // Una vez cargados ambos, poblar los filtros y dibujar el mapa
             populateFilters(allLocacionesData.features, allSectoresData.features);
             drawMap(allLocacionesData.features, allSectoresData.features);
 
@@ -71,12 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Poblar Selectores de Filtros ---
     function populateFilters(locacionesFeatures, sectoresFeatures) {
-        // Películas
-        // Se utiliza 'nombre_peli' de las propiedades de 'locaciones_valparaiso.geojson'
         const peliculas = [...new Set(locacionesFeatures.map(f => f.properties.nombre_peli))].filter(Boolean).sort();
-        peliculaFilter.innerHTML = '<option value="todas">Todas</option>'; // Restablecer a "Todas"
+        peliculaFilter.innerHTML = '<option value="todas">Todas</option>';
         peliculas.forEach(pelicula => {
             const option = document.createElement('option');
             option.value = pelicula;
@@ -84,10 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
             peliculaFilter.appendChild(option);
         });
 
-        // Sectores
-        // Se utiliza 'Nombre_Sector' (preferido) o 'name' de 'sectores_valparaiso.geojson'
         const sectores = [...new Set(sectoresFeatures.map(f => f.properties.Nombre_Sector || f.properties.name))].filter(Boolean).sort();
-        sectorFilter.innerHTML = '<option value="todos">Todos</option>'; // Restablecer a "Todos"
+        sectorFilter.innerHTML = '<option value="todos">Todos</option>';
         sectores.forEach(sector => {
             const option = document.createElement('option');
             option.value = sector;
@@ -96,77 +81,74 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Dibujar Elementos en el Mapa ---
     function drawMap(locacionesFeatures, sectoresFeatures) {
-        // Limpiar capas existentes antes de dibujar nuevas
         locacionesLayerGroup.clearLayers();
         sectoresLayerGroup.clearLayers();
 
-        // Dibujar sectores
         L.geoJson(sectoresFeatures, {
             style: function (feature) {
                 return {
-                    color: '#ff7800', // Color del borde del sector
-                    weight: 2,        // Grosor del borde
-                    opacity: 0.6,     // Opacidad del borde
-                    fillOpacity: 0.1, // Opacidad del relleno
-                    fillColor: '#ff7800' // Color de relleno
+                    color: '#ff7800',
+                    weight: 2,
+                    opacity: 0.6,
+                    fillOpacity: 0.1,
+                    fillColor: '#ff7800'
                 };
             },
             onEachFeature: function (feature, layer) {
-                // Asegurarse de que el popup muestre el nombre del sector
-                const sectorName = feature.properties.Nombre_Sector || feature.properties.name;
-                if (sectorName) {
-                    layer.bindPopup(`<h4>Sector: ${sectorName}</h4>`);
+                if (feature.properties && (feature.properties.Nombre_Sector || feature.properties.name)) {
+                    layer.bindPopup(`<h4>Sector: ${feature.properties.Nombre_Sector || feature.properties.name}</h4>`);
                 }
             }
-        }).addTo(sectoresLayerGroup); // Añadir al grupo de capas de sectores
+        }).addTo(sectoresLayerGroup);
 
-        // Dibujar locaciones
         L.geoJson(locacionesFeatures, {
             pointToLayer: function (feature, latlng) {
-                // Puedes personalizar el ícono del marcador aquí si lo deseas
                 return L.marker(latlng);
             },
             onEachFeature: function (feature, layer) {
-                if (feature.properties) {
+                if (feature.properties && feature.geometry && feature.geometry.coordinates) {
                     const props = feature.properties;
-                    // Construir la URL de la imagen, manejando casos donde no haya imagen o sea una URL externa
-                    const imageUrl = props.imagen_asociada 
-                                     ? (props.imagen_asociada.startsWith('http') 
-                                        ? props.imagen_asociada 
-                                        : `images/${props.imagen_asociada}`)
-                                     : 'images/no-image.jpg'; // Imagen por defecto si no hay
+                    // No necesitamos las coordenadas para Street View aquí
+                    // const coords = feature.geometry.coordinates;
+                    // const lat = coords[1];
+                    // const lng = coords[0];
+
+                    const imageUrl = props.imagen_asociada && props.imagen_asociada.startsWith('http')
+                                   ? props.imagen_asociada
+                                   : `images/${props.imagen_asociada || 'no-image.jpg'}`;
+
+                    // Se elimina la URL de Street View incrustado y el iframe
+                    // const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=${Maps_API_KEY}&location=${lat},${lng}&heading=0&pitch=0&fov=90`;
 
                     const popupContent = `
                         <div class="popup-content">
                             <img src="${imageUrl}" alt="Imagen de la escena" class="popup-image" onerror="this.src='images/no-image.jpg';">
-                            <h4>${props.nombre_peli || 'Sin Nombre'} (${props.año_producción || 'N/A'})</h4>
+                            <h4>${props.nombre_peli || 'Sin Nombre'} (${props.año || 'N/A'})</h4>
                             <p><strong>Director:</strong> ${props.director || 'N/A'}</p>
-                            <p><strong>Género:</strong> ${props.genero || 'N/A'}</p>
+                            <p><strong>Género:</strong> ${props.género || 'N/A'}</p>
                             <p><strong>Nota Breve:</strong> ${props.nota_breve || 'Sin descripción'}</p>
                             <p><strong>Sector:</strong> ${props.sector || 'N/A'}</p>
-                        </div>
+                            
+                            </div>
                     `;
-                    layer.bindPopup(popupContent, {maxWidth: 400}); // Limitar el ancho del popup
+                    layer.bindPopup(popupContent, {maxWidth: 400});
                 }
             }
-        }).addTo(locacionesLayerGroup); // Añadir al grupo de capas de locaciones
+        }).addTo(locacionesLayerGroup);
     }
 
-    // --- Lógica de Aplicación de Filtros ---
     if (aplicarFiltrosBtn) {
         aplicarFiltrosBtn.addEventListener('click', () => {
             const selectedFecha = fechaFilter.value;
             const selectedPelicula = peliculaFilter.value;
             const selectedSector = sectorFilter.value;
 
-            // Filtrar las locaciones
-            const filteredLocaciones = allLocacionesData.features.filter(feature => {
+            const filteredFeatures = allLocacionesData.features.filter(feature => {
                 const props = feature.properties;
-                const añoProduccion = props.año_producción; // Usar 'año_producción' según tu estructura
+                const añoProduccion = parseInt(props.año);
                 const nombrePelicula = props.nombre_peli;
-                const sectorPunto = props.sector; // 'sector' para los puntos de locación
+                const sectorPunto = props.sector;
 
                 let passesFechaFilter = true;
                 if (selectedFecha !== 'todos') {
@@ -184,47 +166,48 @@ document.addEventListener('DOMContentLoaded', () => {
                             passesFechaFilter = añoProduccion >= 1990;
                             break;
                         default:
-                            passesFechaFilter = true; // Por si hay un valor inesperado
+                            passesFechaFilter = true;
                     }
                 }
 
-                const passesPeliculaFilter = (selectedPelicula === 'todas' || nombrePelicula === selectedPelicula);
-                const passesSectorFilter = (selectedSector === 'todos' || sectorPunto === selectedSector);
+                let passesPeliculaFilter = true;
+                if (selectedPelicula !== 'todas') {
+                    passesPeliculaFilter = nombrePelicula === selectedPelicula;
+                }
+
+                let passesSectorFilter = true;
+                if (selectedSector !== 'todos') {
+                    passesSectorFilter = sectorPunto === selectedSector;
+                }
 
                 return passesFechaFilter && passesPeliculaFilter && passesSectorFilter;
             });
 
-            // Re-dibujar solo las locaciones filtradas, manteniendo los sectores
-            drawMap(filteredLocaciones, allSectoresData.features);
-
-            // Cerrar la barra lateral después de aplicar los filtros
+            drawMap(filteredFeatures, allSectoresData.features);
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             menuToggle.classList.remove('active');
         });
     }
 
-    // --- Manejo del Modal "Acerca de" ---
     if (acercaDeLink && aboutModal && closeModalBtn) {
         acercaDeLink.addEventListener('click', (e) => {
-            e.preventDefault(); // Evita que el navegador navegue a '#'
-            aboutModal.style.display = 'flex'; // Usamos 'flex' para centrar el contenido con CSS
+            e.preventDefault();
+            aboutModal.style.display = 'flex';
         });
 
         closeModalBtn.addEventListener('click', () => {
             aboutModal.style.display = 'none';
         });
 
-        // Cerrar el modal haciendo clic fuera de su contenido
         window.addEventListener('click', (event) => {
             if (event.target === aboutModal) {
                 aboutModal.style.display = 'none';
             }
         });
     } else {
-        console.warn("Algunos elementos de la modal 'Acerca de' (acercaDeLink, aboutModal, closeModalBtn) no fueron encontrados en el DOM.");
+        console.warn("Algunos elementos de la modal 'Acerca de' no fueron encontrados.");
     }
 
-    // --- Iniciar la Carga de Datos al cargar la página ---
     loadGeoJSONData();
 });
