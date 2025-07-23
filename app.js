@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
+    const map = L.map('map', {
+        zoomControl: false // Deshabilita el control de zoom predeterminado de Leaflet
+    }).setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
 
     // Nuevo mapa base CartoDB Voyager
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -32,7 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 className: `marker-cluster marker-cluster-${size}`,
                 iconSize: [40, 40] // Este es el tamaño base del divIcon. El span interno se autoajusta.
             });
-        }
+        },
+        // Opciones de animación para los popups al abrirse desde el cluster
+        // Esto ayudará a que la animación de zoom del popup se vea más natural
+        // al interactuar con los clusters.
+        chunkedLoading: true, // Carga optimizada para grandes conjuntos de datos
+        // Configuración de animaciones para los popups (si no se especifica, usa por defecto)
+        // Puedes añadir aquí opciones como 'disableClusteringAtZoom' si quieres que en ciertos zooms no haya clusters
     });
     map.addLayer(markers); // Añadir el grupo de clusters al mapa
 
@@ -266,7 +274,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         L.geoJson(locacionesFeatures, {
             pointToLayer: function (feature, latlng) {
-                return L.marker(latlng, {icon: locationIcon});
+                const marker = L.marker(latlng, {icon: locationIcon});
+                
+                // Eventos para añadir/quitar clases de animación al abrir/cerrar popup
+                marker.on('popupopen', function() {
+                    const popupElement = this.getPopup().getElement();
+                    if (popupElement) {
+                        popupElement.classList.add('leaflet-popup-open');
+                        // Asegurar que la animación se aplique correctamente si el popup se abre muy rápido
+                        setTimeout(() => {
+                            popupElement.classList.remove('leaflet-popup-close-animation');
+                        }, 0);
+                    }
+                });
+
+                marker.on('popupclose', function() {
+                    const popupElement = this.getPopup().getElement();
+                    if (popupElement) {
+                        popupElement.classList.add('leaflet-popup-close-animation');
+                        popupElement.classList.remove('leaflet-popup-open');
+                        // Retrasar el cierre del popup para que la animación se complete
+                        setTimeout(() => {
+                            // Esta parte es manejada automáticamente por Leaflet una vez la animación CSS termina,
+                            // pero la clase es crucial para el efecto visual.
+                        }, 300); // Coincide con la duración de la transición CSS
+                    }
+                });
+
+                return marker;
             },
             onEachFeature: function (feature, layer) {
                 if (feature.properties && feature.geometry && feature.geometry.coordinates) {
@@ -276,9 +311,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                    ? props.imagen_asociada
                                    : `images/${props.imagen_asociada || 'no-image.jpg'}`;
 
+                    // Contenido del popup con el wrapper para la imagen y el icono de lupa
                     const popupContent = `
                         <div class="popup-content">
-                            <img src="${imageUrl}" alt="Imagen de la escena" class="popup-image" onerror="this.src='images/no-image.jpg';" style="cursor: pointer;">
+                            <div class="popup-image-wrapper">
+                                <img src="${imageUrl}" alt="Imagen de la escena" class="popup-image" onerror="this.src='images/no-image.jpg';" style="cursor: pointer;">
+                                <i class="fas fa-search-plus zoom-icon"></i>
+                            </div>
                             <h4>${props.nombre_peli || 'Sin Nombre'} (${props.año_producción || 'N/A'})</h4>
                             <p><strong>Director:</strong> ${props.director || 'N/A'}</p>
                             <p><strong>Género:</strong> ${props.genero || 'N/A'}</p>
