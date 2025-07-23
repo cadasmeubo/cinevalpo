@@ -9,8 +9,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }).addTo(map);
 
     let sectoresLayerGroup = L.featureGroup().addTo(map);
-    // Declarar el grupo de clusters para las locaciones
-    let markers = new L.markerClusterGroup(); 
+    // Declarar el grupo de clusters para las locaciones y personalizar su apariencia
+    let markers = new L.markerClusterGroup({
+        iconCreateFunction: function (cluster) {
+            const childCount = cluster.getChildCount();
+            let size = 'small'; // Clase CSS por defecto
+
+            // Determinar el tamaño del cluster basado en el número de marcadores
+            if (childCount < 10) {
+                size = 'small';
+            } else if (childCount < 100) {
+                size = 'medium';
+            } else {
+                size = 'large';
+            }
+
+            // Aquí generamos el HTML para el icono del cluster.
+            // Los colores de fondo específicos para cada tamaño se definirán en style.css
+            // Esto permite una mayor flexibilidad de diseño en el CSS.
+            return L.divIcon({
+                html: `<span>${childCount}</span>`,
+                className: `marker-cluster marker-cluster-${size}`,
+                iconSize: [40, 40] // Este es el tamaño base del divIcon. El span interno se autoajusta.
+            });
+        }
+    });
     map.addLayer(markers); // Añadir el grupo de clusters al mapa
 
     let allLocacionesData = [];
@@ -250,8 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const props = feature.properties;
 
                     const imageUrl = props.imagen_asociada && props.imagen_asociada.startsWith('http')
-                                ? props.imagen_asociada
-                                : `images/${props.imagen_asociada || 'no-image.jpg'}`;
+                                   ? props.imagen_asociada
+                                   : `images/${props.imagen_asociada || 'no-image.jpg'}`;
 
                     const popupContent = `
                         <div class="popup-content">
