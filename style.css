@@ -8,7 +8,7 @@
 html, body {
     height: 100%;
     width: 100%;
-    font-family: sans-serif; /* Reemplazar con 'Hero', sans-serif; si tienes la fuente web */
+    font-family: sans-serif; /* Reemplazar con 'HeroFont', sans-serif; si tienes la fuente web */
     overflow: hidden;
     color: #373643; /* Textos */
 }
@@ -395,6 +395,59 @@ html, body {
     max-height: 90%;
     object-fit: contain;
 }
+
+/* --- ESTILOS PARA LOS CLUSTERS DE MARCADORES PERSONALIZADOS --- */
+/* Base para todos los contenedores de cluster (divIcon) */
+.marker-cluster {
+    display: flex; /* Usamos flexbox para centrar el span */
+    justify-content: center;
+    align-items: center;
+    background-color: transparent; /* El color de fondo real lo dará el span */
+    border-radius: 50%; /* Para asegurar que el divIcon sea circular */
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6); /* Un ligero borde blanco */
+}
+
+/* Estilos para el span interno que contiene el número y el color de fondo */
+.marker-cluster span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    color: white; /* Color del texto del número */
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.2;
+    white-space: nowrap;
+    outline: 0;
+    /* Transiciones suaves para cambios de tamaño */
+    transition: all 0.2s ease-out;
+}
+
+/* Definición de colores y tamaños por tipo de cluster */
+/* Clusters pequeños (menos de 10 marcadores) */
+.marker-cluster-small span {
+    background-color: #38b6ff; /* Tu color azul secundario - más claro */
+    width: 30px;
+    height: 30px;
+    font-size: 0.9em;
+}
+
+/* Clusters medianos (entre 10 y 99 marcadores) */
+.marker-cluster-medium span {
+    background-color: #004aad; /* Tu color azul principal */
+    width: 35px;
+    height: 35px;
+    font-size: 1em;
+}
+
+/* Clusters grandes (100 o más marcadores) */
+.marker-cluster-large span {
+    background-color: #003a8a; /* Un tono de azul más oscuro que el principal */
+    width: 40px;
+    height: 40px;
+    font-size: 1.1em;
+}
+
 
 /* Media Queries para Responsividad */
 @media (max-width: 768px) {
