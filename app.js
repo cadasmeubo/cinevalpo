@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const map = L.map('map').setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
+    const map = L.map('map').setView([-33.0472, -71.6127], 14);
 
-    // CAMBIO 1: Nuevo mapa base CartoDB Voyager
+    // Nuevo mapa base CartoDB Voyager (sin cambios)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let locacionesLayerGroup = L.featureGroup().addTo(map);
     let sectoresLayerGroup = L.featureGroup().addTo(map);
 
-    let allLocacionesData = []; // Mantendrá todos los datos de locaciones
-    let allSectoresData = null; // Mantendrá todos los datos de sectores
+    let allLocacionesData = [];
+    let allSectoresData = null;
 
     const menuToggle = document.querySelector('.menu-toggle');
     const sidebar = document.querySelector('.sidebar');
@@ -25,8 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const acercaDeLink = document.getElementById('acerca-de-link');
     const aboutModal = document.getElementById('about-modal');
     const closeModalBtn = document.querySelector('.close-button');
+    const imageViewerOverlay = document.createElement('div');
+    imageViewerOverlay.className = 'image-viewer-overlay';
+    document.body.appendChild(imageViewerOverlay);
 
-    // Inicialización de la UI del menú
+    // Inicialización de la UI del menú (sin cambios)
     if (menuToggle && sidebar && overlay) {
         menuToggle.addEventListener('click', () => {
             sidebar.classList.toggle('active');
@@ -43,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("Algunos elementos del menú (menuToggle, sidebar, overlay) no fueron encontrados.");
     }
 
-    // Funciones de carga de datos
+    // Funciones de carga de datos (sin cambios)
     async function loadGeoJSONData() {
         try {
             const locacionesResponse = await fetch('data/locaciones_valparaiso.geojson');
@@ -54,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!sectoresResponse.ok) throw new Error('Error al cargar sectores_valparaiso.geojson');
             allSectoresData = await sectoresResponse.json();
 
-            // Inicialmente, actualiza las opciones de todos los filtros y dibuja el mapa con todos los datos
             updateAllFilterOptionsAndMap();
 
         } catch (error) {
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Función para obtener años únicos para el filtro de fecha
+    // Funciones de filtrado y población de selectores (sin cambios importantes)
     function getUniqueYears(features) {
         const years = new Set();
         features.forEach(f => {
@@ -74,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.from(years).filter(year => !isNaN(year)).sort((a, b) => a - b);
     }
 
-    // Función para determinar qué opciones de rango de fecha son válidas
     function getValidFechaRanges(availableYears) {
         const validRanges = {
             'todos': true,
@@ -94,18 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return validRanges;
     }
 
-    // Función para obtener solo los sectores que tienen puntos de locación asociados
     function getSectorsWithPoints(locacionesFeatures, sectoresFeatures) {
         const sectorsWithPoints = new Set(locacionesFeatures.map(f => f.properties.sector).filter(Boolean));
-        
-        // Filtrar los sectores del GeoJSON de polígonos para incluir solo los que tienen puntos
         return sectoresFeatures.filter(f => {
             const sectorName = f.properties.Nombre_Cer || f.properties.name;
             return sectorsWithPoints.has(sectorName);
         }).map(f => f.properties.Nombre_Cer || f.properties.name).sort();
     }
 
-    // Función para poblar un selector dado sus opciones y la selección actual
     function populateSelector(selectorElement, options, currentValue, defaultValue) {
         selectorElement.innerHTML = `<option value="${defaultValue}">${defaultValue.charAt(0).toUpperCase() + defaultValue.slice(1)}</option>`;
         options.forEach(optionValue => {
@@ -114,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = optionValue;
             selectorElement.appendChild(option);
         });
-        // Intentar restablecer la selección, si no es válida, ir al valor por defecto
         if (options.includes(currentValue) || currentValue === defaultValue) {
             selectorElement.value = currentValue;
         } else {
@@ -122,14 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // CAMBIO 3: Función central para actualizar las opciones de los filtros y el mapa
     function updateAllFilterOptionsAndMap() {
         const currentFechaSelection = fechaFilter.value;
         const currentPeliculaSelection = peliculaFilter.value;
         const currentSectorSelection = sectorFilter.value;
 
-        // 1. Filtrar los datos base para obtener las locaciones que *podrían* ser mostradas
-        // Basamos el filtrado para las opciones en las selecciones actuales
         let filteredForOptions = allLocacionesData.features.filter(feature => {
             const props = feature.properties;
             const añoProduccion = parseInt(props.año_producción);
@@ -159,35 +152,28 @@ document.addEventListener('DOMContentLoaded', () => {
             return passesFecha && passesPelicula && passesSector;
         });
 
-        // 2. Poblar los filtros con las opciones válidas basadas en los datos filtrados
-        // Opciones de películas
         const peliculas = [...new Set(filteredForOptions.map(f => f.properties.nombre_peli))].filter(Boolean).sort();
         populateSelector(peliculaFilter, peliculas, currentPeliculaSelection, 'todas');
 
-        // Opciones de años (rangos)
         const availableYears = getUniqueYears(filteredForOptions);
         const validFechaRanges = getValidFechaRanges(availableYears);
-        
-        // Reconstruir las opciones de fecha, mostrando solo las válidas
+
         fechaFilter.innerHTML = '<option value="todos">Todos</option>';
         if (validFechaRanges['antes1950']) fechaFilter.innerHTML += '<option value="antes1950">Antes de 1950</option>';
         if (validFechaRanges['1951-1973']) fechaFilter.innerHTML += '<option value="1951-1973">1951-1973</option>';
         if (validFechaRanges['1974-1990']) fechaFilter.innerHTML += '<option value="1974-1990">1974-1990</option>';
         if (validFechaRanges['1990-actualidad']) fechaFilter.innerHTML += '<option value="1990-actualidad">1990-Actualidad</option>';
 
-        // Intentar restablecer la selección de fecha
+        // Se verifica si la selección actual de fecha sigue siendo válida
         if (validFechaRanges[currentFechaSelection]) {
             fechaFilter.value = currentFechaSelection;
         } else {
             fechaFilter.value = 'todos';
         }
-        
-        // CAMBIO 2: Opciones de sectores (solo con puntos y existentes en los datos filtrados)
+
         const validSectorsForDropdown = getSectorsWithPoints(filteredForOptions, allSectoresData.features);
         populateSelector(sectorFilter, validSectorsForDropdown, currentSectorSelection, 'todos');
-        
-        // 3. Redibujar el mapa con los datos *actualmente filtrados*
-        // Asegurarse de usar las selecciones más recientes después de la posible corrección de valores no válidos
+
         const finalFechaSelection = fechaFilter.value;
         const finalPeliculaSelection = peliculaFilter.value;
         const finalSectorSelection = sectorFilter.value;
@@ -221,27 +207,28 @@ document.addEventListener('DOMContentLoaded', () => {
             return passesFechaFilter && passesPeliculaFilter && passesSectorFilter;
         });
 
-        // Se pasa el sector seleccionado para el resaltado del polígono
         drawMap(featuresToDisplayOnMap, allSectoresData.features, finalSectorSelection);
     }
 
-    // Función para dibujar/actualizar el mapa
+    // Función para dibujar/actualizar el mapa (con cambio de marcador y evento para ampliar imagen)
     function drawMap(locacionesFeatures, sectoresFeatures, currentSelectedSector) {
         locacionesLayerGroup.clearLayers();
         sectoresLayerGroup.clearLayers();
 
+        const sectorStyle = function (feature) {
+            const sectorName = feature.properties.Nombre_Cer || feature.properties.name;
+            const isSelected = currentSelectedSector !== 'todos' && sectorName === currentSelectedSector;
+            return {
+                color: isSelected ? '#38b6ff' : '#707076', // Activados: #38b6ff, Pasivos: #707076
+                weight: isSelected ? 4 : 2,
+                opacity: 0.6,
+                fillOpacity: isSelected ? 0.3 : 0.1,
+                fillColor: isSelected ? '#38b6ff' : '#707076'
+            };
+        };
+
         L.geoJson(sectoresFeatures, {
-            style: function (feature) {
-                const sectorName = feature.properties.Nombre_Cer || feature.properties.name;
-                const isSelected = currentSelectedSector !== 'todos' && sectorName === currentSelectedSector;
-                return {
-                    color: isSelected ? '#007bff' : '#ff7800', // Azul para seleccionado, naranja para otros
-                    weight: isSelected ? 4 : 2, // Borde más grueso para seleccionado
-                    opacity: 0.6,
-                    fillOpacity: isSelected ? 0.3 : 0.1, // Relleno un poco más opaco para seleccionado
-                    fillColor: isSelected ? '#007bff' : '#ff7800'
-                };
-            },
+            style: sectorStyle,
             onEachFeature: function (feature, layer) {
                 if (feature.properties && (feature.properties.Nombre_Cer || feature.properties.name)) {
                     layer.bindPopup(`<h4>Sector: ${feature.properties.Nombre_Cer || feature.properties.name}</h4>`);
@@ -249,21 +236,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }).addTo(sectoresLayerGroup);
 
+        // CAMBIO 3: Icono personalizado para los marcadores
+        const locationIcon = L.icon({
+            iconUrl: 'images/location_icon.png',
+            iconSize: [32, 32], // Ajusta el tamaño si es necesario
+            iconAnchor: [16, 32], // Ajusta el punto de anclaje para que la punta del icono esté en la ubicación
+            popupAnchor: [0, -32] // Ajusta el punto donde se abre el popup relativo al icono
+        });
+
         L.geoJson(locacionesFeatures, {
             pointToLayer: function (feature, latlng) {
-                return L.marker(latlng);
+                return L.marker(latlng, {icon: locationIcon});
             },
             onEachFeature: function (feature, layer) {
                 if (feature.properties && feature.geometry && feature.geometry.coordinates) {
                     const props = feature.properties;
-                    
+
                     const imageUrl = props.imagen_asociada && props.imagen_asociada.startsWith('http')
                                    ? props.imagen_asociada
                                    : `images/${props.imagen_asociada || 'no-image.jpg'}`;
 
                     const popupContent = `
                         <div class="popup-content">
-                            <img src="${imageUrl}" alt="Imagen de la escena" class="popup-image" onerror="this.src='images/no-image.jpg';">
+                            <img src="${imageUrl}" alt="Imagen de la escena" class="popup-image" onerror="this.src='images/no-image.jpg';" style="cursor: pointer;">
                             <h4>${props.nombre_peli || 'Sin Nombre'} (${props.año_producción || 'N/A'})</h4>
                             <p><strong>Director:</strong> ${props.director || 'N/A'}</p>
                             <p><strong>Género:</strong> ${props.genero || 'N/A'}</p>
@@ -272,20 +267,39 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     `;
                     layer.bindPopup(popupContent, {maxWidth: 400});
+
+                    // CAMBIO 4: Evento para ampliar la imagen del popup
+                    layer.on('popupopen', () => {
+                        const popupImage = layer.getPopup().getElement()?.querySelector('.popup-image');
+                        if (popupImage) {
+                            popupImage.addEventListener('click', () => {
+                                const img = document.createElement('img');
+                                img.src = popupImage.src;
+                                imageViewerOverlay.innerHTML = '';
+                                imageViewerOverlay.appendChild(img);
+                                imageViewerOverlay.style.display = 'flex'; // Muestra el overlay
+                            });
+                        }
+                    });
                 }
             }
         }).addTo(locacionesLayerGroup);
     }
 
-    // Escuchadores de eventos para los filtros y botones
+    // Cerrar el visor de imágenes al hacer clic fuera de la imagen
+    imageViewerOverlay.addEventListener('click', (event) => {
+        if (event.target === imageViewerOverlay) { // Solo cierra si se hace clic en el fondo del overlay
+            imageViewerOverlay.style.display = 'none';
+        }
+    });
+
+    // Escuchadores de eventos para los filtros y botones (sin cambios)
     fechaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
     peliculaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
     sectorFilter.addEventListener('change', updateAllFilterOptionsAndMap);
 
     if (aplicarFiltrosBtn) {
         aplicarFiltrosBtn.addEventListener('click', () => {
-            // El mapa ya se actualiza automáticamente con cada cambio en el filtro.
-            // Este botón solo cerrará el sidebar
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             menuToggle.classList.remove('active');
@@ -294,22 +308,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (resetFiltrosBtn) {
         resetFiltrosBtn.addEventListener('click', () => {
-            // Resetear los selectores a sus valores por defecto
             fechaFilter.value = 'todos';
             peliculaFilter.value = 'todas';
             sectorFilter.value = 'todos';
-
-            // Volver a actualizar las opciones de los filtros y dibujar el mapa
             updateAllFilterOptionsAndMap();
-
-            // Cerrar el sidebar y el overlay
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             menuToggle.classList.remove('active');
         });
     }
 
-    // Funcionalidad de la modal "Acerca de"
+    // Funcionalidad de la modal "Acerca de" (sin cambios)
     if (acercaDeLink && aboutModal && closeModalBtn) {
         acercaDeLink.addEventListener('click', (e) => {
             e.preventDefault();
