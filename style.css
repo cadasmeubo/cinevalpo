@@ -169,6 +169,8 @@ html, body {
     font-size: 1.2rem; /* Tamaño de los iconos */
     min-width: 20px; /* Asegura que el espacio para el icono sea constante */
     text-align: center;
+    font-family: "Font Awesome 6 Free"; /* IMPORTANTE: Asegura que se use la fuente correcta */
+    font-weight: 900; /* IMPORTANTE: Peso de fuente para iconos sólidos (fas) */
 }
 
 .filter-group select {
@@ -334,7 +336,7 @@ html, body {
     border-radius: 4px;
     object-fit: cover;
     cursor: pointer;
-    position: relative; /* Para posicionar el icono de lupa */
+    /* Elimina 'position: relative;' de aquí si estaba, ya que se moverá a .popup-image-wrapper */
 }
 
 .popup-image-wrapper {
@@ -360,6 +362,8 @@ html, body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     pointer-events: none; /* Permite clickear la imagen a través del icono */
     opacity: 0.9; /* Pequeña opacidad para que no opaque la imagen */
+    font-family: "Font Awesome 6 Free"; /* IMPORTANTE: Asegura que se use la fuente correcta */
+    font-weight: 900; /* IMPORTANTE: Peso de fuente para iconos sólidos (fas) */
 }
 
 
