@@ -48,6 +48,14 @@ html, body {
     transform: translateX(-50%);
 }
 
+/* CAMBIO 2: Estilos para el enlace del logo */
+.logo-container a {
+    display: flex; /* Para centrar la imagen dentro del enlace si es necesario */
+    align-items: center;
+    height: 100%;
+    text-decoration: none; /* Quita el subrayado por defecto */
+}
+
 .project-logo {
     height: 50px;
     width: auto;
@@ -177,8 +185,8 @@ html, body {
 
 .filter-group select {
     flex-grow: 1; /* Permite que el select ocupe el espacio restante */
-    width: 100%; /* Añadido: Asegura que ocupe el 100% del espacio disponible */
-    max-width: 100%; /* Añadido: Evita que se desborde */
+    width: 100%; /* Asegura que ocupe el 100% del espacio disponible */
+    max-width: 100%; /* Evita que se desborde */
     padding: 10px;
     border: 1px solid #dcdcdc;
     border-radius: 5px;
@@ -438,7 +446,8 @@ html, body {
     z-index: 2100; /* Mayor que la modal */
     justify-content: center;
     align-items: center;
-    cursor: pointer; /* Indicar que se puede cerrar */
+    cursor: pointer; /* Indicar que se puede cerrar haciendo clic fuera */
+    position: relative; /* Para posicionar el botón de cierre */
 }
 
 .image-viewer-overlay img {
@@ -446,6 +455,24 @@ html, body {
     max-width: 90%;
     max-height: 90%;
     object-fit: contain;
+}
+
+/* CAMBIO 1: Estilos para el botón de cierre del visor de imagen */
+.image-viewer-close-btn {
+    position: absolute;
+    top: 20px; /* Ajusta según sea necesario */
+    right: 20px; /* Ajusta según sea necesario */
+    color: white;
+    font-size: 40px; /* Tamaño más grande para la 'x' */
+    cursor: pointer;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(0,0,0,0.8); /* Sombra para que se vea bien en cualquier fondo */
+    z-index: 2101; /* Asegura que esté por encima de la imagen */
+    transition: color 0.2s ease;
+}
+
+.image-viewer-close-btn:hover {
+    color: #f0f0f0;
 }
 
 /* --- ESTILOS PARA LOS CLUSTERS DE MARCADORES PERSONALIZADOS --- */
@@ -546,6 +573,13 @@ html, body {
         padding: 10px;
         font-size: 1rem;
     }
+
+    /* CAMBIO 1: Ajuste del botón de cierre en móviles */
+    .image-viewer-close-btn {
+        font-size: 35px;
+        top: 15px;
+        right: 15px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -585,5 +619,12 @@ html, body {
     .reset-filters-button {
         padding: 8px;
         font-size: 0.9rem;
+    }
+
+    /* CAMBIO 1: Ajuste del botón de cierre en móviles */
+    .image-viewer-close-btn {
+        font-size: 30px;
+        top: 10px;
+        right: 10px;
     }
 }
