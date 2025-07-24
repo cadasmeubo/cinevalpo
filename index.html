@@ -4,17 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Geoportal Valparaíso Cinematográfico</title>
-    
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://*.openstreetmap.org https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://unpkg.com https://*.openstreetmap.org https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com;">
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" referrerpolicy="no-referrer" />
-    
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -29,20 +22,24 @@
 
     <aside class="sidebar">
         <nav>
-            <h3>Filtros de Búsqueda</h3>
+            <h3>Filtros de Contenido</h3>
             <div class="filter-group">
                 <label for="fecha-filter">Año de Producción:</label>
                 <div class="filter-item">
-                    <i class="filter-icon fas fa-calendar-alt"></i>
+                    <i class="fas fa-calendar-alt filter-icon"></i>
                     <select id="fecha-filter">
                         <option value="todos">Todos</option>
+                        <option value="antes1950">Antes de 1950</option>
+                        <option value="1951-1973">1951-1973</option>
+                        <option value="1974-1990">1974-1990</option>
+                        <option value="1990-actualidad">1990-Actualidad</option>
                     </select>
                 </div>
             </div>
             <div class="filter-group">
                 <label for="pelicula-filter">Película:</label>
                 <div class="filter-item">
-                    <i class="filter-icon fas fa-film"></i>
+                    <i class="fas fa-film filter-icon"></i>
                     <select id="pelicula-filter">
                         <option value="todas">Todas</option>
                     </select>
@@ -51,12 +48,13 @@
             <div class="filter-group">
                 <label for="sector-filter">Sector:</label>
                 <div class="filter-item">
-                    <i class="filter-icon fas fa-map-marker-alt"></i>
+                    <i class="fas fa-map-marker-alt filter-icon"></i>
                     <select id="sector-filter">
                         <option value="todos">Todos</option>
                     </select>
                 </div>
             </div>
+            <button id="aplicar-filtros" class="apply-filters-button">Aplicar Filtros</button>
             <button id="reset-filters-btn" class="reset-filters-button">Resetear Filtros</button>
         </nav>
         <div class="sidebar-footer">
@@ -71,17 +69,18 @@
 
     <div id="about-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button" aria-label="Cerrar">&times;</span>
+            <span class="close-button" aria-label="Cerrar">×</span>
             <h2>Acerca del Proyecto</h2>
             <p>Este geoportal es un proyecto dedicado a explorar las locaciones cinematográficas de Valparaíso, Chile. Utiliza datos geográficos para visualizar y filtrar producciones relacionadas con la ciudad.</p>
             <p>Desarrollado con **Leaflet** para el mapa interactivo y **OpenStreetMap** como base cartográfica.</p>
             <p>El objetivo es mostrar la riqueza cultural y cinematográfica de Valparaíso a través de sus espacios urbanos, vinculando la información de películas con sus ubicaciones específicas.</p>
-        </div>
+            </div>
     </div>
+
+    <div class="image-viewer-overlay"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-
     <script src="app.js"></script>
 </body>
 </html>
