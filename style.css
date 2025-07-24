@@ -128,7 +128,8 @@
      display: flex;
      flex-direction: column;
      justify-content: space-between;
-     overflow-y: auto;
+     overflow-y: hidden; /* Asegura que no haya scroll vertical en el sidebar */
+     overflow-x: hidden; /* Asegura que no haya scroll horizontal en el sidebar */
  }
 
  .sidebar.active {
