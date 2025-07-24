@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let passesPelicula = true;
             if (peliculaVal !== 'todas') {
-                passesPelicula = nombrePelicula === peleliculaVal;
+                passesPelicula = nombrePelicula === peliculaVal;
             }
 
             let passesSector = true;
