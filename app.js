@@ -246,7 +246,26 @@ document.addEventListener('DOMContentLoaded', () => {
             style: sectorStyle,
             onEachFeature: function (feature, layer) {
                 if (feature.properties && (feature.properties.Nombre_Cer || feature.properties.name)) {
-                    layer.bindPopup(`<h4>Sector: ${feature.properties.Nombre_Cer || feature.properties.name}</h4>`);
+                    // Contenido del popup para los sectores
+                    const popupContent = `<h4>Sector: ${feature.properties.Nombre_Cer || feature.properties.name}</h4>`;
+                    layer.bindPopup(popupContent);
+
+                    // Añadir los manejadores de eventos para los popups de los polígonos
+                    layer.on('popupopen', function() {
+                        const popupElement = this.getPopup().getElement();
+                        if (popupElement) {
+                            popupElement.classList.remove('leaflet-popup-close-animation');
+                            popupElement.classList.add('leaflet-popup-open');
+                        }
+                    });
+
+                    layer.on('popupclose', function() {
+                        const popupElement = this.getPopup().getElement();
+                        if (popupElement) {
+                            popupElement.classList.remove('leaflet-popup-open');
+                            popupElement.classList.add('leaflet-popup-close-animation');
+                        }
+                    });
                 }
             }
         }).addTo(sectoresLayerGroup);
