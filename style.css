@@ -177,8 +177,6 @@ html, body {
 
 .filter-group select {
     flex-grow: 1; /* Permite que el select ocupe el espacio restante */
-    width: 100%; /* Añadido: Asegura que ocupe el 100% del espacio disponible */
-    max-width: 100%; /* Añadido: Evita que se desborde */
     padding: 10px;
     border: 1px solid #dcdcdc;
     border-radius: 5px;
