@@ -194,10 +194,11 @@ html, body {
     box-shadow: 0 0 0 3px rgba(56, 182, 255, 0.25);
 }
 
-.apply-filters-button {
+/* El botón de aplicar filtros ha sido eliminado, por lo que estas reglas ya no son necesarias. */
+/* .apply-filters-button {
     width: 100%;
     padding: 12px;
-    background-color: #004aad; /* Color principal */
+    background-color: #004aad;
     color: white;
     border: none;
     border-radius: 5px;
@@ -216,17 +217,17 @@ html, body {
 }
 .apply-filters-button:active {
     transform: translateY(0);
-}
+} */
 
 .reset-filters-button {
     width: 100%;
-    padding: 12px;
+    padding: 8px; /* Reducido de 12px a 8px */
     background-color: #707076; /* Pasivos */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1.15rem;
+    font-size: 0.95rem; /* Reducido de 1.15rem a 0.95rem */
     margin-top: 15px;
     transition: background-color 0.2s ease, transform 0.1s ease;
     font-weight: bold;
