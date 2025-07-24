@@ -128,8 +128,7 @@
      display: flex;
      flex-direction: column;
      justify-content: space-between;
-     overflow-y: hidden; /* Asegura que no haya scroll vertical en el sidebar */
-     overflow-x: hidden; /* Asegura que no haya scroll horizontal en el sidebar */
+     overflow: hidden; /* Asegura que no haya scrollbars en el sidebar principal */
  }
 
  .sidebar.active {
@@ -138,6 +137,9 @@
 
  .sidebar nav {
      padding: 20px;
+     flex-grow: 1; /* Permite que el área de navegación crezca para ocupar espacio disponible */
+     overflow-y: auto; /* Permite desplazamiento vertical solo dentro de la navegación si el contenido es muy largo */
+     overflow-x: hidden; /* Oculta el desplazamiento horizontal dentro de la navegación */
  }
 
  .sidebar h3 {
