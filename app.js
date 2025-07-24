@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fechaFilter = document.getElementById('fecha-filter');
     const peliculaFilter = document.getElementById('pelicula-filter');
     const sectorFilter = document.getElementById('sector-filter');
-    const aplicarFiltrosBtn = document.getElementById('aplicar-filtros');
+    // const aplicarFiltrosBtn = document.getElementById('aplicar-filtros'); // Eliminado
     const resetFiltrosBtn = document.getElementById('reset-filters-btn');
     const acercaDeLink = document.getElementById('acerca-de-link');
     const aboutModal = document.getElementById('about-modal');
@@ -97,72 +97,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function getUniqueYears(features) {
-        const years = new Set();
-        features.forEach(f => {
-            if (f.properties && f.properties.año_producción) {
-                years.add(parseInt(f.properties.año_producción));
-            }
-        });
-        return Array.from(years).filter(year => !isNaN(year)).sort((a, b) => a - b);
-    }
-
-    function getValidFechaRanges(availableYears) {
-        const validRanges = {
-            'todos': true,
-            'antes1950': false,
-            '1951-1973': false,
-            '1974-1990': false,
-            '1990-actualidad': false
-        };
-
-        availableYears.forEach(year => {
-            if (year < 1950) validRanges['antes1950'] = true;
-            if (year >= 1951 && year <= 1973) validRanges['1951-1973'] = true;
-            if (year >= 1974 && year <= 1990) validRanges['1974-1990'] = true;
-            if (year >= 1990) validRanges['1990-actualidad'] = true;
-        });
-
-        return validRanges;
-    }
-
-    function getSectorsWithPoints(locacionesFeatures, sectoresFeatures) {
-        const sectorsWithPoints = new Set(locacionesFeatures.map(f => f.properties.sector).filter(Boolean));
-        return sectoresFeatures.filter(f => {
-            const sectorName = f.properties.Nombre_Cer || f.properties.name;
-            return sectorsWithPoints.has(sectorName);
-        }).map(f => f.properties.Nombre_Cer || f.properties.name).sort();
-    }
-
-    function populateSelector(selectorElement, options, currentValue, defaultValue) {
-        selectorElement.innerHTML = `<option value="${defaultValue}">${defaultValue.charAt(0).toUpperCase() + defaultValue.slice(1)}</option>`;
-        options.forEach(optionValue => {
-            const option = document.createElement('option');
-            option.value = optionValue;
-            option.textContent = optionValue;
-            selectorElement.appendChild(option);
-        });
-        if (options.includes(currentValue) || currentValue === defaultValue) {
-            selectorElement.value = currentValue;
-        } else {
-            selectorElement.value = defaultValue;
-        }
-    }
-
-    function updateAllFilterOptionsAndMap() {
-        const currentFechaSelection = fechaFilter.value;
-        const currentPeliculaSelection = peliculaFilter.value;
-        const currentSectorSelection = sectorFilter.value;
-
-        let filteredForOptions = allLocacionesData.features.filter(feature => {
+    // Helper para filtrar características basado en filtros dados
+    function filterFeatures(features, fechaVal, peliculaVal, sectorVal) {
+        return features.filter(feature => {
             const props = feature.properties;
             const añoProduccion = parseInt(props.año_producción);
             const nombrePelicula = props.nombre_peli;
             const sectorPunto = props.sector;
 
             let passesFecha = true;
-            if (currentFechaSelection !== 'todos') {
-                switch (currentFechaSelection) {
+            if (fechaVal !== 'todos') {
+                switch (fechaVal) {
                     case 'antes1950': passesFecha = añoProduccion < 1950; break;
                     case '1951-1973': passesFecha = añoProduccion >= 1951 && añoProduccion <= 1973; break;
                     case '1974-1990': passesFecha = añoProduccion >= 1974 && añoProduccion <= 1990; break;
@@ -171,73 +116,104 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let passesPelicula = true;
-            if (currentPeliculaSelection !== 'todas') {
-                passesPelicula = nombrePelicula === currentPeliculaSelection;
+            if (peliculaVal !== 'todas') {
+                passesPelicula = nombrePelicula === peliculaVal;
             }
 
             let passesSector = true;
-            if (currentSectorSelection !== 'todos') {
-                passesSector = sectorPunto === currentSectorSelection;
+            if (sectorVal !== 'todos') {
+                passesSector = sectorPunto === sectorVal;
             }
 
             return passesFecha && passesPelicula && passesSector;
         });
+    }
 
-        const peliculas = [...new Set(filteredForOptions.map(f => f.properties.nombre_peli))].filter(Boolean).sort();
-        populateSelector(peliculaFilter, peliculas, currentPeliculaSelection, 'todas');
+    function updateAllFilterOptionsAndMap() {
+        const currentFechaSelection = fechaFilter.value;
+        const currentPeliculaSelection = peliculaFilter.value;
+        const currentSectorSelection = sectorFilter.value;
 
-        const availableYears = getUniqueYears(filteredForOptions);
-        const validFechaRanges = getValidFechaRanges(availableYears);
-
-        fechaFilter.innerHTML = '<option value="todos">Todos</option>';
-        if (validFechaRanges['antes1950']) fechaFilter.innerHTML += '<option value="antes1950">Antes de 1950</option>';
-        if (validFechaRanges['1951-1973']) fechaFilter.innerHTML += '<option value="1951-1973">1951-1973</option>';
-        if (validFechaRanges['1974-1990']) fechaFilter.innerHTML += '<option value="1974-1990">1974-1990</option>';
-        if (validFechaRanges['1990-actualidad']) fechaFilter.innerHTML += '<option value="1990-actualidad">1990-Actualidad</option>';
-
-        if (validFechaRanges[currentFechaSelection]) {
-            fechaFilter.value = currentFechaSelection;
-        } else {
-            fechaFilter.value = 'todos';
-        }
-
-        const validSectorsForDropdown = getSectorsWithPoints(filteredForOptions, allSectoresData.features);
-        populateSelector(sectorFilter, validSectorsForDropdown, currentSectorSelection, 'todos');
-
-        const finalFechaSelection = fechaFilter.value;
-        const finalPeliculaSelection = peliculaFilter.value;
-        const finalSectorSelection = sectorFilter.value;
-
-        const featuresToDisplayOnMap = allLocacionesData.features.filter(feature => {
-            const props = feature.properties;
-            const añoProduccion = parseInt(props.año_producción);
-            const nombrePelicula = props.nombre_peli;
-            const sectorPunto = props.sector;
-
-            let passesFechaFilter = true;
-            if (finalFechaSelection !== 'todos') {
-                switch (finalFechaSelection) {
-                    case 'antes1950': passesFechaFilter = añoProduccion < 1950; break;
-                    case '1951-1973': passesFechaFilter = añoProduccion >= 1951 && añoProduccion <= 1973; break;
-                    case '1974-1990': passesFechaFilter = añoProduccion >= 1974 && añoProduccion <= 1990; break;
-                    case '1990-actualidad': passesFechaFilter = añoProduccion >= 1990; break;
+        // --- Actualizar opciones y contadores para Película ---
+        const peliculasOptions = {};
+        allLocacionesData.features.forEach(f => {
+            const nombre = f.properties.nombre_peli;
+            if (nombre) {
+                // Contar cuántas locaciones de esta película coinciden con los otros filtros activos
+                const count = filterFeatures(allLocacionesData.features, currentFechaSelection, nombre, currentSectorSelection).length;
+                if (count > 0) { // Solo añadir si hay locaciones para esa película con los filtros activos
+                    peliculasOptions[nombre] = count;
                 }
             }
+        });
+        const sortedPeliculas = Object.keys(peliculasOptions).sort();
+        peliculaFilter.innerHTML = '<option value="todas">Todas</option>';
+        sortedPeliculas.forEach(pelicula => {
+            const option = document.createElement('option');
+            option.value = pelicula;
+            option.textContent = `${pelicula} (${peliculasOptions[pelicula]})`;
+            peliculaFilter.appendChild(option);
+        });
+        peliculaFilter.value = currentPeliculaSelection;
 
-            let passesPeliculaFilter = true;
-            if (finalPeliculaSelection !== 'todas') {
-                passesPeliculaFilter = nombrePelicula === finalPeliculaSelection;
+
+        // --- Actualizar opciones y contadores para Año de Producción ---
+        const fechaRangesOptions = {
+            'antes1950': { text: 'Antes de 1950', count: 0 },
+            '1951-1973': { text: '1951-1973', count: 0 },
+            '1974-1990': { text: '1974-1990', count: 0 },
+            '1990-actualidad': { text: '1990-Actualidad', count: 0 }
+        };
+
+        allLocacionesData.features.forEach(f => {
+            const año = parseInt(f.properties.año_producción);
+            // Contar cuántas locaciones en cada rango de fecha coinciden con los otros filtros activos
+            if (filterFeatures(allLocacionesData.features, 'todos', currentPeliculaSelection, currentSectorSelection).includes(f)) {
+                 if (año < 1950) fechaRangesOptions['antes1950'].count++;
+                 if (año >= 1951 && año <= 1973) fechaRangesOptions['1951-1973'].count++;
+                 if (año >= 1974 && año <= 1990) fechaRangesOptions['1974-1990'].count++;
+                 if (año >= 1990) fechaRangesOptions['1990-actualidad'].count++;
             }
-
-            let passesSectorFilter = true;
-            if (finalSectorSelection !== 'todos') {
-                passesSectorFilter = sectorPunto === finalSectorSelection;
-            }
-
-            return passesFechaFilter && passesPeliculaFilter && passesSectorFilter;
         });
 
-        drawMap(featuresToDisplayOnMap, allSectoresData.features, finalSectorSelection);
+        fechaFilter.innerHTML = '<option value="todos">Todos</option>';
+        for (const key in fechaRangesOptions) {
+            if (fechaRangesOptions[key].count > 0) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = `${fechaRangesOptions[key].text} (${fechaRangesOptions[key].count})`;
+                fechaFilter.appendChild(option);
+            }
+        }
+        fechaFilter.value = currentFechaSelection;
+
+        // --- Actualizar opciones y contadores para Sector ---
+        const sectoresOptions = {};
+        if (allSectoresData) { // Asegúrate de que allSectoresData esté cargado
+            allSectoresData.features.forEach(sectorFeature => {
+                const sectorName = sectorFeature.properties.Nombre_Cer || sectorFeature.properties.name;
+                if (sectorName) {
+                    const count = filterFeatures(allLocacionesData.features, currentFechaSelection, currentPeliculaSelection, sectorName).length;
+                    if (count > 0) {
+                        sectoresOptions[sectorName] = count;
+                    }
+                }
+            });
+        }
+        const sortedSectores = Object.keys(sectoresOptions).sort();
+        sectorFilter.innerHTML = '<option value="todos">Todos</option>';
+        sortedSectores.forEach(sector => {
+            const option = document.createElement('option');
+            option.value = sector;
+            option.textContent = `${sector} (${sectoresOptions[sector]})`;
+            sectorFilter.appendChild(option);
+        });
+        sectorFilter.value = currentSectorSelection;
+
+
+        // --- Filtrado final para el mapa ---
+        const featuresToDisplayOnMap = filterFeatures(allLocacionesData.features, currentFechaSelection, currentPeliculaSelection, currentSectorSelection);
+        drawMap(featuresToDisplayOnMap, allSectoresData.features, currentSectorSelection);
     }
 
     function drawMap(locacionesFeatures, sectoresFeatures, currentSelectedSector) {
@@ -350,24 +326,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Los filtros ahora llaman directamente a updateAllFilterOptionsAndMap
     fechaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
     peliculaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
     sectorFilter.addEventListener('change', updateAllFilterOptionsAndMap);
 
-    if (aplicarFiltrosBtn) {
-        aplicarFiltrosBtn.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            menuToggle.classList.remove('active');
-        });
-    }
+    // El botón de aplicar filtros ya no existe, el código asociado se ha eliminado
+    // if (aplicarFiltrosBtn) {
+    //     aplicarFiltrosBtn.addEventListener('click', () => {
+    //         sidebar.classList.remove('active');
+    //         overlay.classList.remove('active');
+    //         menuToggle.classList.remove('active');
+    //     });
+    // }
 
     if (resetFiltrosBtn) {
         resetFiltrosBtn.addEventListener('click', () => {
             fechaFilter.value = 'todos';
             peliculaFilter.value = 'todas';
             sectorFilter.value = 'todos';
-            updateAllFilterOptionsAndMap();
+            updateAllFilterOptionsAndMap(); // Llama a la función para actualizar el mapa
+            // Cierra el sidebar después de resetear los filtros, ya que no hay botón "aplicar"
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             menuToggle.classList.remove('active');
