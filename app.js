@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const map = L.map('map', {
         zoomControl: false // Deshabilita el control de zoom predeterminado de Leaflet
-    }).setView([-33.0472, -71.6127], 14); // Valparaíso, Chile
+    }).setView([-33.0472, -71.6127], 14); // Inicialmente Valparaíso, pero se ajustará
 
     // Nuevo mapa base CartoDB Voyager
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const fechaFilter = document.getElementById('fecha-filter');
     const peliculaFilter = document.getElementById('pelicula-filter');
     const sectorFilter = document.getElementById('sector-filter');
-    // const aplicarFiltrosBtn = document.getElementById('aplicar-filtros'); // Eliminado
     const resetFiltrosBtn = document.getElementById('reset-filters-btn');
     const acercaDeLink = document.getElementById('acerca-de-link');
     const aboutModal = document.getElementById('about-modal');
@@ -90,6 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
             allSectoresData = await sectoresResponse.json();
 
             updateAllFilterOptionsAndMap();
+            // Centrar el mapa en todos los puntos al inicio
+            if (allLocacionesData.features.length > 0) {
+                const allCoords = allLocacionesData.features.map(f => [f.geometry.coordinates[1], f.geometry.coordinates[0]]);
+                const bounds = L.latLngBounds(allCoords);
+                map.fitBounds(bounds);
+            }
 
         } catch (error) {
             console.error('Error al cargar los datos GeoJSON:', error);
@@ -167,14 +172,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         allLocacionesData.features.forEach(f => {
             const año = parseInt(f.properties.año_producción);
-            // Contar cuántas locaciones en cada rango de fecha coinciden con los otros filtros activos
-            if (filterFeatures(allLocacionesData.features, 'todos', currentPeliculaSelection, currentSectorSelection).includes(f)) {
-                 if (año < 1950) fechaRangesOptions['antes1950'].count++;
-                 if (año >= 1951 && año <= 1973) fechaRangesOptions['1951-1973'].count++;
-                 if (año >= 1974 && año <= 1990) fechaRangesOptions['1974-1990'].count++;
-                 if (año >= 1990) fechaRangesOptions['1990-actualidad'].count++;
+            // Para contar correctamente los rangos de fecha, necesitamos un filtro temporario
+            // que solo considere la película y el sector actuales, y luego verificar el año.
+            // Esto es crucial para que los contadores de fecha reflejen el estado actual de los otros filtros.
+            const matchesOtherFilters = filterFeatures([f], currentFechaSelection, currentPeliculaSelection, currentSectorSelection).length > 0;
+
+            if (matchesOtherFilters || (currentFechaSelection === 'todos' && currentPeliculaSelection === 'todas' && currentSectorSelection === 'todos')) {
+                // Si la locación ya pasa los otros filtros, o si no hay filtros aplicados, la incluimos para contar
+                if (año < 1950) fechaRangesOptions['antes1950'].count++;
+                if (año >= 1951 && año <= 1973) fechaRangesOptions['1951-1973'].count++;
+                if (año >= 1974 && año <= 1990) fechaRangesOptions['1974-1990'].count++;
+                if (año >= 1990) fechaRangesOptions['1990-actualidad'].count++;
             }
         });
+
 
         fechaFilter.innerHTML = '<option value="todos">Todos</option>';
         for (const key in fechaRangesOptions) {
@@ -248,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             popupAnchor: [0, -32]
         });
 
-        L.geoJson(locacionesFeatures, {
+        const geoJsonLayer = L.geoJson(locacionesFeatures, {
             pointToLayer: function (feature, latlng) {
                 const marker = L.marker(latlng, {icon: locationIcon});
                 
@@ -317,7 +328,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             }
-        }).addTo(markers); // Añadir los marcadores al grupo de clusters
+        });
+        
+        markers.addLayer(geoJsonLayer); // Añadir los marcadores al grupo de clusters
+
+        // Re-centrar el mapa en los puntos filtrados
+        if (locacionesFeatures.length > 0) {
+            const visibleCoords = locacionesFeatures.map(f => [f.geometry.coordinates[1], f.geometry.coordinates[0]]);
+            const bounds = L.latLngBounds(visibleCoords);
+            map.fitBounds(bounds, { padding: [50, 50] }); // Añadir padding para que no se pegue a los bordes
+        } else {
+            // Si no hay locaciones, vuelve a la vista inicial de Valparaíso
+            map.setView([-33.0472, -71.6127], 14);
+        }
     }
 
     imageViewerOverlay.addEventListener('click', (event) => {
@@ -330,15 +353,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fechaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
     peliculaFilter.addEventListener('change', updateAllFilterOptionsAndMap);
     sectorFilter.addEventListener('change', updateAllFilterOptionsAndMap);
-
-    // El botón de aplicar filtros ya no existe, el código asociado se ha eliminado
-    // if (aplicarFiltrosBtn) {
-    //     aplicarFiltrosBtn.addEventListener('click', () => {
-    //         sidebar.classList.remove('active');
-    //         overlay.classList.remove('active');
-    //         menuToggle.classList.remove('active');
-    //     });
-    // }
 
     if (resetFiltrosBtn) {
         resetFiltrosBtn.addEventListener('click', () => {
