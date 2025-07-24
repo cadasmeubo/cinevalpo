@@ -1,605 +1,586 @@
 /* Estilos Generales y Reseteo Básico */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-html, body {
-    height: 100%;
-    width: 100%;
-    font-family: 'Roboto', sans-serif; /* Fuente Roboto */
-    overflow: hidden; /* Previene el scroll del cuerpo principal */
-    color: #373643; /* Textos */
-}
-
-/* Estilo del Mapa */
-#map {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    background-color: #e0e0e0;
-}
-
-/* Cabecera Principal */
-.main-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background-color: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    z-index: 1000;
-}
-
-.logo-container {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.project-logo {
-    height: 50px;
-    width: auto;
-    object-fit: contain;
-}
-
-/* Botón de Menú Hamburguesa */
-.menu-toggle {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1001;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hamburger-icon {
-    display: block;
-    width: 28px;
-    height: 3px;
-    background-color: #373643; /* Textos */
-    position: relative;
-    transition: background-color 0.3s ease;
-    border-radius: 2px;
-}
-
-.hamburger-icon::before,
-.hamburger-icon::after {
-    content: '';
-    display: block;
-    width: 28px;
-    height: 3px;
-    background-color: #373643; /* Textos */
-    position: absolute;
-    transition: transform 0.3s ease, top 0.3s ease;
-    border-radius: 2px;
-}
-
-.hamburger-icon::before {
-    top: -9px;
-}
-
-.hamburger-icon::after {
-    top: 9px;
-}
-
-/* Animación del icono de hamburguesa a cruz */
-.menu-toggle.active .hamburger-icon {
-    background-color: transparent;
-}
-
-.menu-toggle.active .hamburger-icon::before {
-    transform: translateY(9px) rotate(45deg);
-}
-
-.menu-toggle.active .hamburger-icon::after {
-    transform: translateY(-9px) rotate(-45deg);
-}
-
-/* Menú Lateral (Sidebar) */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: -320px;
-    width: 320px;
-    height: 100%;
-    background-color: #f9f9f9; /* Un gris claro de fondo */
-    box-shadow: 2px 0 15px rgba(0,0,0,0.25);
-    z-index: 999;
-    transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    padding-top: 80px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden; /* Asegura que no haya scrollbars en el sidebar principal */
-}
-
-.sidebar.active {
-    left: 0;
-}
-
-.sidebar nav {
-    padding: 20px;
-    flex-grow: 1; /* Permite que el área de navegación crezca para ocupar espacio disponible */
-    overflow-y: auto; /* Permite desplazamiento vertical solo dentro de la navegación si el contenido es muy largo */
-    overflow-x: hidden; /* Oculta el desplazamiento horizontal dentro de la navegación */
-}
-
-.sidebar h3 {
-    margin-bottom: 25px;
-    color: #004aad; /* Color principal */
-    font-size: 1.4rem;
-    text-align: center;
-}
-
-.filter-group {
-    margin-bottom: 20px;
-}
-
-.filter-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #373643; /* Textos */
-    font-size: 0.95rem;
-}
-
-.filter-item {
-    display: flex; /* Para alinear el icono con el select */
-    align-items: center;
-    gap: 10px; /* Espacio entre el icono y el select */
-}
-
-.filter-icon {
-    color: #004aad; /* Color azul para los iconos */
-    font-size: 1.2rem; /* Tamaño de los iconos */
-    min-width: 20px; /* Asegura que el espacio para el icono sea constante */
-    text-align: center;
-    font-family: "Font Awesome 6 Free"; /* IMPORTANTE: Asegura que se use la fuente correcta */
-    font-weight: 900; /* IMPORTANTE: Peso de fuente para iconos sólidos (fas) */
-}
-
-.filter-group select {
-    flex-grow: 1; /* Permite que el select ocupe el espacio restante */
-    padding: 10px;
-    border: 1px solid #dcdcdc;
-    border-radius: 5px;
-    font-size: 1rem;
-    background-color: #fff;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M9.293%2012.95l.707.707L15%209.707l-1.414-1.414L10%2011.536l-3.586-3.586L5%209.707z%22%20fill%3D%22%23373643%22%2F%3E%3C%2Fsvg%3E"); /* Textos */
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    cursor: pointer;
-    /* Asegura que la caja visible del select se ajuste al 100% de su espacio disponible */
-    width: 100%;
-    max-width: 100%;
-}
-
-.filter-group select:focus {
-    outline: none;
-    border-color: #38b6ff; /* Color secundario */
-    box-shadow: 0 0 0 3px rgba(56, 182, 255, 0.25);
-}
-
-.reset-filters-button {
-    width: 100%;
-    padding: 8px; /* Reducido de 12px a 8px */
-    background-color: #707076; /* Pasivos */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.95rem; /* Reducido de 1.15rem a 0.95rem */
-    margin-top: 15px;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.reset-filters-button:hover {
-    background-color: #5e5e64;
-    transform: translateY(-2px);
-}
-.reset-filters-button:active {
-    transform: translateY(0);
-}
-
-.sidebar-footer {
-    padding: 20px;
-    border-top: 1px solid #eee;
-    text-align: center; /* Alinea el contenido del footer al centro */
-    background-color: #fff;
-    display: flex; /* Usar flexbox para centrar elementos */
-    flex-direction: column; /* Apilar elementos verticalmente */
-    align-items: center; /* Centrar horizontalmente */
-    gap: 10px; /* Espacio entre el logo y el texto */
-}
-
-.sidebar-footer .sidebar-logo {
-    height: 40px;
-    width: auto; /* Asegura que la imagen no se distorsione */
-    object-fit: contain;
-    margin-bottom: 0; /* Elimina el margen inferior si existía */
-}
-
-.sidebar-footer a {
-    color: #004aad; /* Color principal */
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.sidebar-footer a:hover {
-    text-decoration: underline;
-}
-
-/* Overlay para el efecto blur */
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    pointer-events: none;
-    transition: background-color 0.4s ease-out, backdrop-filter 0.4s ease-out;
-    z-index: 998;
-}
-
-.overlay.active {
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-    pointer-events: auto;
-}
-
-/* Ocultar el control de zoom de Leaflet */
-.leaflet-control-zoom {
-    display: none !important;
-}
-
-/* Estilos de Popups de Leaflet */
-.leaflet-popup-content-wrapper {
-    border-radius: 8px;
-    padding: 0;
-    overflow: hidden;
-    /* Para la animación de escalado */
-    transform-origin: bottom center; /* Escalar desde la base del popup */
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease-out;
-    opacity: 0; /* Inicialmente oculto para la animación de entrada */
-    transform: scale(0.1); /* Inicialmente muy pequeño */
-}
-
-/* Clase para mostrar el popup con animación */
-.leaflet-popup-pane .leaflet-popup-open .leaflet-popup-content-wrapper {
-    opacity: 1;
-    transform: scale(1);
-}
-
-/* Estilos al cerrar el popup (simula el encogimiento) */
-.leaflet-popup-pane .leaflet-popup-close-animation .leaflet-popup-content-wrapper {
-    opacity: 0;
-    transform: scale(0.1);
-}
-
-/* --- INICIO: CAMBIOS PARA VISIBILIDAD DE POPUP --- */
-.leaflet-popup-content {
-    padding: 10px !important;
-    text-align: center;
-    min-width: 200px;
-    color: #373643; /* Añadido: Asegura que el color de texto sea visible */
-    font-size: 14px; /* Añadido: Tamaño de fuente base para el contenido del popup */
-    line-height: 1.5; /* Añadido: Espaciado entre líneas para mejor lectura */
-    word-wrap: break-word; /* Añadido: Para asegurar que el texto largo se ajuste */
-}
-
-.leaflet-popup-content b {
-    color: #000; /* Añadido: Color negro para el texto en negrita, asegura contraste */
-    font-size: 16px; /* Añadido: Un poco más grande para destacar el título/nombre */
-}
-
-.leaflet-popup-close-button {
-    color: #373643 !important; /* Añadido: Asegura que la 'x' sea visible */
-}
-/* --- FIN: CAMBIOS PARA VISIBILIDAD DE POPUP --- */
-
-
-.popup-image {
-    max-width: 100%;
-    height: auto;
-    max-height: 180px;
-    display: block;
-    margin: 0 auto 10px auto;
-    border-radius: 4px;
-    object-fit: cover;
-    cursor: pointer;
-}
-
-.popup-image-wrapper {
-    position: relative; /* Contenedor para la imagen y el icono de lupa */
-    display: block;
-    margin: 0 auto 10px auto;
-}
-
-.zoom-icon {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background-color: rgba(0, 74, 173, 0.8); /* Azul principal con opacidad */
-    color: white;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.8em;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    pointer-events: none; /* Permite clickear la imagen a través del icono */
-    opacity: 0.9; /* Pequeña opacidad para que no opaque la imagen */
-    font-family: "Font Awesome 6 Free"; /* IMPORTANTE: Asegura que se use la fuente correcta */
-    font-weight: 900; /* IMPORTANTE: Peso de fuente para iconos sólidos (fas) */
-}
-
-
-.popup-content h4 {
-    margin-bottom: 5px;
-    color: #004aad; /* Color principal */
-    font-size: 1.1rem;
-}
-
-.popup-content p {
-    font-size: 0.85em;
-    color: #373643; /* Textos */
-    margin-bottom: 3px;
-    line-height: 1.4;
-}
-
-/* Estilos de la Ventana Modal "Acerca de" */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    backdrop-filter: blur(3px);
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background-color: #fefefe;
-    padding: 30px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 10px;
-    position: relative;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    animation-name: animatemodal;
-    animation-duration: 0.4s;
-    text-align: center;
-}
-
-@keyframes animatemodal {
-    from {transform: scale(0.7); opacity: 0;}
-    to {transform: scale(1); opacity: 1;}
-}
-
-.modal-content h2 {
-    color: #004aad; /* Color principal */
-    margin-bottom: 15px;
-    font-size: 1.8rem;
-}
-
-.modal-content p {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #373643; /* Textos */
-    margin-bottom: 10px;
-}
-
-.close-button {
-    color: #aaa;
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: #333;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Estilos para la ampliación de la imagen del popup */
-.image-viewer-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    z-index: 2100; /* Mayor que la modal */
-    justify-content: center;
-    align-items: center;
-    cursor: pointer; /* Indicar que se puede cerrar */
-}
-
-.image-viewer-overlay img {
-    display: block;
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-}
-
-/* --- ESTILOS PARA LOS CLUSTERS DE MARCADORES PERSONALIZADOS --- */
-/* Base para todos los contenedores de cluster (divIcon) */
-.marker-cluster {
-    display: flex; /* Usamos flexbox para centrar el span */
-    justify-content: center;
-    align-items: center;
-    background-color: transparent; /* El color de fondo real lo dará el span */
-    border-radius: 50%; /* Para asegurar que el divIcon sea circular */
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6); /* Un ligero borde blanco */
-}
-
-/* Estilos para el span interno que contiene el número y el color de fondo */
-.marker-cluster span {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    color: white; /* Color del texto del número */
-    font-weight: bold;
-    text-align: center;
-    line-height: 1.2;
-    white-space: nowrap;
-    outline: 0;
-    /* Transiciones suaves para cambios de tamaño */
-    transition: all 0.2s ease-out;
-}
-
-/* Definición de colores y tamaños por tipo de cluster */
-/* Clusters pequeños (menos de 10 marcadores) */
-.marker-cluster-small span {
-    background-color: #38b6ff; /* Tu color azul secundario - más claro */
-    width: 30px;
-    height: 30px;
-    font-size: 0.9em;
-}
-
-/* Clusters medianos (entre 10 y 99 marcadores) */
-.marker-cluster-medium span {
-    background-color: #004aad; /* Tu color azul principal */
-    width: 35px;
-    height: 35px;
-    font-size: 1em;
-}
-
-/* Clusters grandes (100 o más marcadores) */
-.marker-cluster-large span {
-    background-color: #003a8a; /* Un tono de azul más oscuro que el principal */
-    width: 40px;
-    height: 40px;
-    font-size: 1.1em;
-}
-
-
-/* Media Queries para Responsividad */
-@media (max-width: 768px) {
-    .main-header {
-        padding: 0 10px;
-        height: 55px;
-    }
-
-    .project-logo {
-        height: 45px;
-    }
-
-    .menu-toggle {
-        left: 5px;
-        padding: 8px;
-    }
-
-    .hamburger-icon,
-    .hamburger-icon::before,
-    .hamburger-icon::after {
-        width: 25px;
-    }
-
-    .sidebar {
-        width: 280px;
-        left: -280px;
-        padding-top: 65px;
-    }
-
-    .sidebar.active {
-        left: 0;
-    }
-
-    .sidebar h3 {
-        font-size: 1.2rem;
-    }
-
-    .modal-content {
-        width: 90%;
-        padding: 25px;
-    }
-
-    .reset-filters-button {
-        padding: 10px;
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .main-header {
-        height: 50px;
-    }
-    .project-logo {
-        height: 40px;
-    }
-    .menu-toggle {
-        padding: 5px;
-    }
-    .sidebar {
-        width: 100%;
-        left: -100%;
-        padding-top: 60px;
-    }
-
-    .sidebar.active {
-        left: 0;
-    }
-
-    .modal-content {
-        width: 95%;
-        padding: 20px;
-        margin: 15px;
-    }
-
-    .modal-content h2 {
-        font-size: 1.5rem;
-    }
-
-    .modal-content p {
-        font-size: 0.9rem;
-    }
-
-    .reset-filters-button {
-        padding: 8px;
-        font-size: 0.9rem;
-    }
-}
+ * {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+ }
+
+ html, body {
+     height: 100%;
+     width: 100%;
+     font-family: 'Roboto', sans-serif; /* Fuente Roboto */
+     overflow: hidden;
+     color: #373643; /* Textos */
+ }
+
+ /* Estilo del Mapa */
+ #map {
+     height: 100%;
+     width: 100%;
+     position: absolute;
+     top: 0;
+     left: 0;
+     z-index: 1;
+     background-color: #e0e0e0;
+ }
+
+ /* Cabecera Principal */
+ .main-header {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 60px;
+     background-color: rgba(255, 255, 255, 0.95);
+     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+     display: flex;
+     align-items: center;
+     padding: 0 20px;
+     z-index: 1000;
+ }
+
+ .logo-container {
+     height: 100%;
+     display: flex;
+     align-items: center;
+     position: absolute;
+     left: 50%;
+     transform: translateX(-50%);
+ }
+
+ .project-logo {
+     height: 50px;
+     width: auto;
+     object-fit: contain;
+ }
+
+ /* Botón de Menú Hamburguesa */
+ .menu-toggle {
+     background: none;
+     border: none;
+     cursor: pointer;
+     padding: 10px;
+     position: absolute;
+     left: 10px;
+     top: 50%;
+     transform: translateY(-50%);
+     z-index: 1001;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+ }
+
+ .hamburger-icon {
+     display: block;
+     width: 28px;
+     height: 3px;
+     background-color: #373643; /* Textos */
+     position: relative;
+     transition: background-color 0.3s ease;
+     border-radius: 2px;
+ }
+
+ .hamburger-icon::before,
+ .hamburger-icon::after {
+     content: '';
+     display: block;
+     width: 28px;
+     height: 3px;
+     background-color: #373643; /* Textos */
+     position: absolute;
+     transition: transform 0.3s ease, top 0.3s ease;
+     border-radius: 2px;
+ }
+
+ .hamburger-icon::before {
+     top: -9px;
+ }
+
+ .hamburger-icon::after {
+     top: 9px;
+ }
+
+ /* Animación del icono de hamburguesa a cruz */
+ .menu-toggle.active .hamburger-icon {
+     background-color: transparent;
+ }
+
+ .menu-toggle.active .hamburger-icon::before {
+     transform: translateY(9px) rotate(45deg);
+ }
+
+ .menu-toggle.active .hamburger-icon::after {
+     transform: translateY(-9px) rotate(-45deg);
+ }
+
+ /* Menú Lateral (Sidebar) */
+ .sidebar {
+     position: fixed;
+     top: 0;
+     left: -320px;
+     width: 320px;
+     height: 100%;
+     background-color: #f9f9f9; /* Un gris claro de fondo */
+     box-shadow: 2px 0 15px rgba(0,0,0,0.25);
+     z-index: 999;
+     transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+     padding-top: 80px;
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
+     overflow-y: hidden; /* Asegura que no haya scroll vertical en el sidebar */
+     overflow-x: hidden; /* Asegura que no haya scroll horizontal en el sidebar */
+ }
+
+ .sidebar.active {
+     left: 0;
+ }
+
+ .sidebar nav {
+     padding: 20px;
+ }
+
+ .sidebar h3 {
+     margin-bottom: 25px;
+     color: #004aad; /* Color principal */
+     font-size: 1.4rem;
+     text-align: center;
+ }
+
+ .filter-group {
+     margin-bottom: 20px;
+ }
+
+ .filter-group label {
+     display: block;
+     margin-bottom: 8px;
+     font-weight: bold;
+     color: #373643; /* Textos */
+     font-size: 0.95rem;
+ }
+
+ .filter-item {
+     display: flex; /* Para alinear el icono con el select */
+     align-items: center;
+     gap: 10px; /* Espacio entre el icono y el select */
+ }
+
+ .filter-icon {
+     color: #004aad; /* Color azul para los iconos */
+     font-size: 1.2rem; /* Tamaño de los iconos */
+     min-width: 20px; /* Asegura que el espacio para el icono sea constante */
+     text-align: center;
+     font-family: "Font Awesome 6 Free"; /* IMPORTANTE: Asegura que se use la fuente correcta */
+     font-weight: 900; /* IMPORTANTE: Peso de fuente para iconos sólidos (fas) */
+ }
+
+ .filter-group select {
+     flex-grow: 1; /* Permite que el select ocupe el espacio restante */
+     padding: 10px;
+     border: 1px solid #dcdcdc;
+     border-radius: 5px;
+     font-size: 1rem;
+     background-color: #fff;
+     appearance: none;
+     -webkit-appearance: none;
+     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20d%3D%22M9.293%2012.95l.707.707L15%209.707l-1.414-1.414L10%2011.536l-3.586-3.586L5%209.707z%22%20fill%3D%22%23373643%22%2F%3E%3C%2Fsvg%3E"); /* Textos */
+     background-repeat: no-repeat;
+     background-position: right 10px center;
+     cursor: pointer;
+ }
+
+ .filter-group select:focus {
+     outline: none;
+     border-color: #38b6ff; /* Color secundario */
+     box-shadow: 0 0 0 3px rgba(56, 182, 255, 0.25);
+ }
+
+ .reset-filters-button {
+     width: 100%;
+     padding: 8px; /* Reducido de 12px a 8px */
+     background-color: #707076; /* Pasivos */
+     color: white;
+     border: none;
+     border-radius: 5px;
+     cursor: pointer;
+     font-size: 0.95rem; /* Reducido de 1.15rem a 0.95rem */
+     margin-top: 15px;
+     transition: background-color 0.2s ease, transform 0.1s ease;
+     font-weight: bold;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+ }
+
+ .reset-filters-button:hover {
+     background-color: #5e5e64;
+     transform: translateY(-2px);
+ }
+ .reset-filters-button:active {
+     transform: translateY(0);
+ }
+
+ .sidebar-footer {
+     padding: 20px;
+     border-top: 1px solid #eee;
+     text-align: center; /* Alinea el contenido del footer al centro */
+     background-color: #fff;
+     display: flex; /* Usar flexbox para centrar elementos */
+     flex-direction: column; /* Apilar elementos verticalmente */
+     align-items: center; /* Centrar horizontalmente */
+     gap: 10px; /* Espacio entre el logo y el texto */
+ }
+
+ .sidebar-footer .sidebar-logo {
+     height: 40px;
+     width: auto; /* Asegura que la imagen no se distorsione */
+     object-fit: contain;
+     margin-bottom: 0; /* Elimina el margen inferior si existía */
+ }
+
+ .sidebar-footer a {
+     color: #004aad; /* Color principal */
+     text-decoration: none;
+     font-size: 0.95rem;
+     font-weight: 600;
+ }
+
+ .sidebar-footer a:hover {
+     text-decoration: underline;
+ }
+
+ /* Overlay para el efecto blur */
+ .overlay {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background-color: rgba(0, 0, 0, 0);
+     backdrop-filter: blur(0px);
+     pointer-events: none;
+     transition: background-color 0.4s ease-out, backdrop-filter 0.4s ease-out;
+     z-index: 998;
+ }
+
+ .overlay.active {
+     background-color: rgba(0, 0, 0, 0.5);
+     backdrop-filter: blur(5px);
+     pointer-events: auto;
+ }
+
+ /* Ocultar el control de zoom de Leaflet */
+ .leaflet-control-zoom {
+     display: none !important;
+ }
+
+ /* Estilos de Popups de Leaflet */
+ .leaflet-popup-content-wrapper {
+     border-radius: 8px;
+     padding: 0;
+     overflow: hidden;
+     /* Para la animación de escalado */
+     transform-origin: bottom center; /* Escalar desde la base del popup */
+     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease-out;
+     opacity: 0; /* Inicialmente oculto para la animación de entrada */
+     transform: scale(0.1); /* Inicialmente muy pequeño */
+ }
+
+ /* Clase para mostrar el popup con animación */
+ .leaflet-popup-pane .leaflet-popup-open .leaflet-popup-content-wrapper {
+     opacity: 1;
+     transform: scale(1);
+ }
+
+ /* Estilos al cerrar el popup (simula el encogimiento) */
+ .leaflet-popup-pane .leaflet-popup-close-animation .leaflet-popup-content-wrapper {
+     opacity: 0;
+     transform: scale(0.1);
+ }
+
+
+ .leaflet-popup-content {
+     padding: 10px !important;
+     text-align: center;
+     min-width: 200px;
+ }
+
+ .popup-image {
+     max-width: 100%;
+     height: auto;
+     max-height: 180px;
+     display: block;
+     margin: 0 auto 10px auto;
+     border-radius: 4px;
+     object-fit: cover;
+     cursor: pointer;
+     /* Elimina 'position: relative;' de aquí si estaba, ya que se moverá a .popup-image-wrapper */
+ }
+
+ .popup-image-wrapper {
+     position: relative; /* Contenedor para la imagen y el icono de lupa */
+     display: block;
+     margin: 0 auto 10px auto;
+ }
+
+ .zoom-icon {
+     position: absolute;
+     bottom: 5px;
+     right: 5px;
+     background-color: rgba(0, 74, 173, 0.8); /* Azul principal con opacidad */
+     color: white;
+     border-radius: 50%;
+     width: 25px;
+     height: 25px;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     font-size: 0.8em;
+     cursor: pointer;
+     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+     pointer-events: none; /* Permite clickear la imagen a través del icono */
+     opacity: 0.9; /* Pequeña opacidad para que no opaque la imagen */
+     font-family: "Font Awesome 6 Free"; /* IMPORTANTE: Asegura que se use la fuente correcta */
+     font-weight: 900; /* IMPORTANTE: Peso de fuente para iconos sólidos (fas) */
+ }
+
+
+ .popup-content h4 {
+     margin-bottom: 5px;
+     color: #004aad; /* Color principal */
+     font-size: 1.1rem;
+ }
+
+ .popup-content p {
+     font-size: 0.85em;
+     color: #373643; /* Textos */
+     margin-bottom: 3px;
+     line-height: 1.4;
+ }
+
+ /* Estilos de la Ventana Modal "Acerca de" */
+ .modal {
+     display: none;
+     position: fixed;
+     z-index: 2000;
+     left: 0;
+     top: 0;
+     width: 100%;
+     height: 100%;
+     overflow: auto;
+     background-color: rgba(0,0,0,0.6);
+     backdrop-filter: blur(3px);
+     justify-content: center;
+     align-items: center;
+ }
+
+ .modal-content {
+     background-color: #fefefe;
+     padding: 30px;
+     border: 1px solid #888;
+     width: 80%;
+     max-width: 500px;
+     border-radius: 10px;
+     position: relative;
+     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+     animation-name: animatemodal;
+     animation-duration: 0.4s;
+     text-align: center;
+ }
+
+ @keyframes animatemodal {
+     from {transform: scale(0.7); opacity: 0;}
+     to {transform: scale(1); opacity: 1;}
+ }
+
+ .modal-content h2 {
+     color: #004aad; /* Color principal */
+     margin-bottom: 15px;
+     font-size: 1.8rem;
+ }
+
+ .modal-content p {
+     font-size: 1rem;
+     line-height: 1.6;
+     color: #373643; /* Textos */
+     margin-bottom: 10px;
+ }
+
+ .close-button {
+     color: #aaa;
+     position: absolute;
+     top: 10px;
+     right: 15px;
+     font-size: 28px;
+     font-weight: bold;
+     cursor: pointer;
+     transition: color 0.2s ease;
+ }
+
+ .close-button:hover,
+ .close-button:focus {
+     color: #333;
+     text-decoration: none;
+     cursor: pointer;
+ }
+
+ /* Estilos para la ampliación de la imagen del popup */
+ .image-viewer-overlay {
+     display: none;
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background-color: rgba(0, 0, 0, 0.9);
+     z-index: 2100; /* Mayor que la modal */
+     justify-content: center;
+     align-items: center;
+     cursor: pointer; /* Indicar que se puede cerrar */
+ }
+
+ .image-viewer-overlay img {
+     display: block;
+     max-width: 90%;
+     max-height: 90%;
+     object-fit: contain;
+ }
+
+ /* --- ESTILOS PARA LOS CLUSTERS DE MARCADORES PERSONALIZADOS --- */
+ /* Base para todos los contenedores de cluster (divIcon) */
+ .marker-cluster {
+     display: flex; /* Usamos flexbox para centrar el span */
+     justify-content: center;
+     align-items: center;
+     background-color: transparent; /* El color de fondo real lo dará el span */
+     border-radius: 50%; /* Para asegurar que el divIcon sea circular */
+     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6); /* Un ligero borde blanco */
+ }
+
+ /* Estilos para el span interno que contiene el número y el color de fondo */
+ .marker-cluster span {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     border-radius: 50%;
+     color: white; /* Color del texto del número */
+     font-weight: bold;
+     text-align: center;
+     line-height: 1.2;
+     white-space: nowrap;
+     outline: 0;
+     /* Transiciones suaves para cambios de tamaño */
+     transition: all 0.2s ease-out;
+ }
+
+ /* Definición de colores y tamaños por tipo de cluster */
+ /* Clusters pequeños (menos de 10 marcadores) */
+ .marker-cluster-small span {
+     background-color: #38b6ff; /* Tu color azul secundario - más claro */
+     width: 30px;
+     height: 30px;
+     font-size: 0.9em;
+ }
+
+ /* Clusters medianos (entre 10 y 99 marcadores) */
+ .marker-cluster-medium span {
+     background-color: #004aad; /* Tu color azul principal */
+     width: 35px;
+     height: 35px;
+     font-size: 1em;
+ }
+
+ /* Clusters grandes (100 o más marcadores) */
+ .marker-cluster-large span {
+     background-color: #003a8a; /* Un tono de azul más oscuro que el principal */
+     width: 40px;
+     height: 40px;
+     font-size: 1.1em;
+ }
+
+
+ /* Media Queries para Responsividad */
+ @media (max-width: 768px) {
+     .main-header {
+         padding: 0 10px;
+         height: 55px;
+     }
+
+     .project-logo {
+         height: 45px;
+     }
+
+     .menu-toggle {
+         left: 5px;
+         padding: 8px;
+     }
+
+     .hamburger-icon,
+     .hamburger-icon::before,
+     .hamburger-icon::after {
+         width: 25px;
+     }
+
+     .sidebar {
+         width: 280px;
+         left: -280px;
+         padding-top: 65px;
+     }
+
+     .sidebar.active {
+         left: 0;
+     }
+
+     .sidebar h3 {
+         font-size: 1.2rem;
+     }
+
+     .modal-content {
+         width: 90%;
+         padding: 25px;
+     }
+
+     .reset-filters-button {
+         padding: 10px;
+         font-size: 1rem;
+     }
+ }
+
+ @media (max-width: 480px) {
+     .main-header {
+         height: 50px;
+     }
+     .project-logo {
+         height: 40px;
+     }
+     .menu-toggle {
+         padding: 5px;
+     }
+     .sidebar {
+         width: 100%;
+         left: -100%;
+         padding-top: 60px;
+     }
+
+     .sidebar.active {
+         left: 0;
+     }
+
+     .modal-content {
+         width: 95%;
+         padding: 20px;
+         margin: 15px;
+     }
+
+     .modal-content h2 {
+         font-size: 1.5rem;
+     }
+
+     .modal-content p {
+         font-size: 0.9rem;
+     }
+
+     .reset-filters-button {
+         padding: 8px;
+         font-size: 0.9rem;
+     }
+ }
