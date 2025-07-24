@@ -57,10 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const acercaDeLink = document.getElementById('acerca-de-link');
     const aboutModal = document.getElementById('about-modal');
     const closeModalBtn = document.querySelector('.close-button');
-    const imageViewerOverlay = document.querySelector('.image-viewer-overlay'); // Seleccionar el overlay existente
-    // CAMBIO 2: Nuevo elemento para el logo en el encabezado
-    const homeLogoLink = document.getElementById('home-logo-link');
-
+    const imageViewerOverlay = document.createElement('div');
+    imageViewerOverlay.className = 'image-viewer-overlay';
+    document.body.appendChild(imageViewerOverlay);
 
     // Inicialización de la UI del menú
     if (menuToggle && sidebar && overlay) {
@@ -331,20 +330,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const popupImage = layer.getPopup().getElement()?.querySelector('.popup-image');
                         if (popupImage) {
                             popupImage.addEventListener('click', () => {
-                                // CAMBIO 1: Agregar el botón de cierre al visor de imágenes
-                                const closeBtn = document.createElement('span');
-                                closeBtn.className = 'image-viewer-close-btn';
-                                closeBtn.innerHTML = '&times;'; // Icono de 'x'
-                                closeBtn.addEventListener('click', (e) => {
-                                    e.stopPropagation(); // Evitar que el clic en la 'x' cierre también el overlay
-                                    imageViewerOverlay.style.display = 'none';
-                                });
-
                                 const img = document.createElement('img');
                                 img.src = popupImage.src;
-                                imageViewerOverlay.innerHTML = ''; // Limpiar contenido previo
+                                imageViewerOverlay.innerHTML = '';
                                 imageViewerOverlay.appendChild(img);
-                                imageViewerOverlay.appendChild(closeBtn); // Añadir el botón de cierre
                                 imageViewerOverlay.style.display = 'flex';
                             });
                         }
@@ -367,7 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     imageViewerOverlay.addEventListener('click', (event) => {
-        // CAMBIO 1: Permitir cerrar el visor de imágenes haciendo clic fuera de la imagen
         if (event.target === imageViewerOverlay) {
             imageViewerOverlay.style.display = 'none';
         }
@@ -385,29 +373,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sectorFilter.value = 'todos';
             updateAllFilterOptionsAndMap(); // Llama a la función para actualizar el mapa
             // Cierra el sidebar después de resetear los filtros, ya que no hay botón "aplicar"
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            menuToggle.classList.remove('active');
-        });
-    }
-
-    // CAMBIO 2: Event Listener para el logo de "home"
-    if (homeLogoLink) {
-        homeLogoLink.addEventListener('click', (e) => {
-            e.preventDefault(); // Prevenir el comportamiento por defecto del enlace
-            fechaFilter.value = 'todos'; // Resetear filtros
-            peliculaFilter.value = 'todas';
-            sectorFilter.value = 'todos';
-            updateAllFilterOptionsAndMap(); // Actualizar mapa y filtros
-            // Recalcular los límites para que se ajusten a todas las locaciones disponibles
-            if (allLocacionesData.features.length > 0) {
-                const allCoords = allLocacionesData.features.map(f => [f.geometry.coordinates[1], f.geometry.coordinates[0]]);
-                const bounds = L.latLngBounds(allCoords);
-                map.fitBounds(bounds); // Ajustar el mapa a todos los marcadores
-            } else {
-                map.setView([-33.0472, -71.6127], 14); // Vista por defecto si no hay datos
-            }
-            // Asegurarse de que el sidebar esté cerrado
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             menuToggle.classList.remove('active');
