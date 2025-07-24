@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geoportal Valparaíso Cinematográfico</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Valparaíso Cinematográfico</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoMasHJKQO8LMOKIJAXPDRrFu9ggcO+SjMV3eAt/y6SkgN6XFbyNJP0g/dnwFjVaNZjQqPefby5mVyPyK/g=="
+     crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="map"></div>
+
     <header class="main-header">
-        <button class="menu-toggle" aria-label="Abrir menú">
+        <button class="menu-toggle" aria-label="Abrir Menú">
             <span class="hamburger-icon"></span>
         </button>
         <div class="logo-container">
-            <img src="images/logo.png" alt="Logo del Proyecto" class="project-logo">
+            <a href="#" id="home-logo-link" aria-label="Volver a la vista inicial del mapa">
+                <img src="images/logo_valpo_cine.png" alt="Logo Valparaíso Cinematográfico" class="project-logo">
+            </a>
         </div>
     </header>
 
@@ -29,10 +36,6 @@
                     <i class="fas fa-calendar-alt filter-icon"></i>
                     <select id="fecha-filter">
                         <option value="todos">Todos</option>
-                        <option value="antes1950">Antes de 1950</option>
-                        <option value="1951-1973">1951-1973</option>
-                        <option value="1974-1990">1974-1990</option>
-                        <option value="1990-actualidad">1990-Actualidad</option>
                     </select>
                 </div>
             </div>
@@ -56,30 +59,30 @@
             </div>
             <button id="reset-filters-btn" class="reset-filters-button">Resetear Filtros</button>
         </nav>
-        <div class="sidebar-footer">
-            <img src="images/logo-mini.png" alt="Logo pequeño" class="sidebar-logo">
+        <footer class="sidebar-footer">
+            <img src="images/logo_valpo_cine.png" alt="Logo Valparaíso Cinematográfico" class="sidebar-logo">
             <a href="#" id="acerca-de-link">Acerca de</a>
-        </div>
+        </footer>
     </aside>
-
-    <div id="map"></div>
-
     <div class="overlay"></div>
 
     <div id="about-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button" aria-label="Cerrar">×</span>
-            <h2>Acerca del Proyecto</h2>
-            <p>Este geoportal es un proyecto dedicado a explorar las locaciones cinematográficas de Valparaíso, Chile. Utiliza datos geográficos para visualizar y filtrar producciones relacionadas con la ciudad.</p>
-            <p>Desarrollado con **Leaflet** para el mapa interactivo y **OpenStreetMap** como base cartográfica.</p>
-            <p>El objetivo es mostrar la riqueza cultural y cinematográfica de Valparaíso a través de sus espacios urbanos, vinculando la información de películas con sus ubicaciones específicas.</p>
-            </div>
+            <span class="close-button">&times;</span>
+            <h2>Valparaíso Cinematográfico</h2>
+            <p>Este proyecto web SIG permite la visualización geoespacial de locaciones cinematográficas filmadas en Valparaíso y Viña del Mar.</p>
+            <p>Explora escenas de películas chilenas, accede a información detallada sobre su producción y director, y conecta con el patrimonio audiovisual de la región.</p>
+            <p>Desarrollado con tecnologías de código abierto como Leaflet.js, QGIS y datos GeoJSON.</p>
+            <p>¡Disfruta descubriendo el Valparaíso del cine!</p>
+        </div>
     </div>
 
     <div class="image-viewer-overlay"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjGwclefFVySyK9uLNqDxuw5x8Vz/EM/"
+     crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
